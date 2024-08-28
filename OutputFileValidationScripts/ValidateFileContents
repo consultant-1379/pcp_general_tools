@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# ----- Exit Variables -----
+SUCCESS=0
+
+# ----- Variables -----
+filename=""
+pect_output_directory="/var/opt/ericsson/pcp/pect/output/3g/"
+resource_file="/tmp/validation_text.tmp"
+
+# ----- Functions -----
+function extract_info_from_filename {
+}
+
+function check_location_information {
+	
+	records_location_info=$(cat $1 | awk -F"," {'print $6"_"$7"_"$8'} | sort -u)
+	
+	if [ $records_location_info != $2 ]; then
+		echo "File: $filename contains incorrect MCC_MNC_LAC."
+	fi
+}
+
+function check_epoch_end_time {
+	
+	file_start_epoch=$(echo "$2 - 60" | bc)
+	record_start_epoch=$(cat $1 | awk -F"," {'print $1'} | sort -u | tail -1)
+	
+	if [ $record_start_epoch -lt $file_start_epoch ]; then
+		echo "File: $filename contains epoch records before the ROP"
+	fi
+}
+
+function check_epoch_start_time {
+	
+	record_end_epoch=$(cat $1 | awk -F"," {'print $1'} | sort -u | head -1)
+	
+	if [ $record_end_epoch -gt $2 ]; then
+		echo "File: $filename contains epoch records after the ROP"
+	fi
+}
+
+function populate_file_with_dir_contents {
+	
+	touch $resource_file
+	cd $pect_output_directory
+	ls -R > $resource_file
+}
+
+function loop_through_filenames {
+	
+	while read line; do
+	
+		if [ $line == *./* ]; then
+			
+			# Change into directory - Try to use fully qualified directory path here
+			$(echo $line | awk )
+		elif [ $line == "" ]
+			
+			# Switch up a directory
+			cd ../
+		else
+			
+			# Execute testing functions
+			check_location_information $line
+			check_epoch_end_time $line
+		fi
+		
+	done < $resource_file
+}
+
+function delete_files_with_dir_contents {
+	
+	rm -f $resource_file
+}
+
+# ----- Stagelist -----
+echo "    [START]   Starting to validate the contents of the output files."
+populate_file_with_dir_contents
+loop_through_filenames
+delete_files_with_dir_contents
+echo "    [FINISH]  Finished Validating the contnets of the output files.
+
+exit $SUCCESS

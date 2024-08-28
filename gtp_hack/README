@@ -1,0 +1,13 @@
+
+The gtp_hack tool is meant for creating pcap files containing gtp traffic.  It wraps the gtp in UDP, wraps that in IP, and wraps that in Ethernet.  That is technically a protocol stack, but it's a very noddy example.  It's also rather ugly code, definitely not suitable for selling to customers!
+
+To use it, call the write_pcap_start() function with a filename, and when all the packets are done, call the write_pcap_end() function to flush the pcap file.
+
+For each GTP packet, call write_gtp_start() with the GTP version (normally 1), the message type, the TEID for this traffic, and the flags (normally 0).  Then, for each information element, call write_gtp_IE() with the information element ID, the length, and a character string containing the data.  For information element IDs above 0x7F, the length will be written automagically; for ones less than 0x80, it is the responsibility of the caller to get the length right.  (See 29.060 section 7.7.0 for more details on IE lengths.)  Finally, call write_gtp_end() with either GTP_UP or GTP_DOWN to write the packet in the appropriate direction.
+
+The write_gtp functions build the GTP packet in a buffer, which ends with the gtp_length integer.  You can alter this to create funny packets: there's an example of this (and everything else) in the brown.c code.
+
+Have fun breaking it. :-)
+
+
+ 

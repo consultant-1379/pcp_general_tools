@@ -1,0 +1,155 @@
+#!/bin/bash
+# ----------------------------------------------------------------------
+# Ericsson Network IQ Packet Capture Pre Processor 13A EU01 Upgrade
+#
+# Usage:
+#
+#       ./UpgradeTo13AEU01.bsh [FILE]
+#
+#       exit 0 for success
+#       exit 1 for incorrect args
+#       exit 2 for non-existing TAR file
+#
+# Read 13A EU01 TAR file that should exist
+#
+#               Author:         Luke Potter             elukpot
+#               Date:           24/01/2013
+#
+# ----------------------------------------------------------------------
+# Copyright (c) 1999 - 2012 AB Ericsson Oy  All rights reserved.
+# ----------------------------------------------------------------------
+# 
+# DESCRIPTION:
+#       This script should be run on a PCP Server running the 13.0.14
+#       version of the PCP Server software.
+# ARGS:
+#       Pass in the fully qualified path to 13A EU01 TAR file as
+#       the only argument.
+# 
+# ----------------------------------------------------------------------
+
+# Check for args
+if [ $# -ne 1 ]
+then
+	echo "    [ERROR]   Usage is: $0 [FILE]"
+	echo "    [INFO]    e.g. $0 /var/tmp/ENIQ_EVENTS.tar.gz"
+	exit 1 # Incorrect Args
+fi
+
+# Check if the TAR exists
+TAR=$1
+if [ ! -f $TAR ]
+then
+	echo "    [ERROR]   13A EU01 TAR file not found"
+	exit 2 # Non-Existing TAR
+fi
+
+# Make temp directory for EU01 TAR and give TAR a generic name
+mkdir -m 755 -p /var/tmp/ENIQ_E_R1S_EU01
+cd /var/tmp/ENIQ_E_R1S_EU01
+mv $TAR EU_upgrade.tar.gz
+
+# Change the permissions of the TAR
+chown root:root EU_upgrade.tar.gz
+chmod 755 EU_upgrade.tar.gz
+gtar zxf EU_upgrade.tar.gz
+
+# Make sure the PCP Server is stopped
+service probe-controller stop
+
+# Move the sys_config.ini out of harm's way
+mv -f /eniq/installation/core_install/etc/sys_config.ini /root/
+
+# Untar the Core_Install TAR file
+cd /var/tmp/ENIQ_E_R1S_EU01/eniq_base_sw/eniq_linux/pcp/install/
+mv pcp_core_install.tar.gz /eniq/installation/
+cd /eniq/installation/
+gtar xf pcp_core_install.tar.gz
+rm -f pcp_core_install.tar.gz
+
+# Move the sys_config.ini back to where it's supposed to be
+mv -f /root/sys_config.ini /eniq/installation/core_install/etc/
+
+# Take a back up of the system
+cd /eniq/installation/core_install/bin/UpgradeScripts
+./BackupRestore.bsh -b
+
+# Upgrade the 13A EU01 RPMs
+cd /var/tmp/ENIQ_E_R1S_EU01/eniq_base_sw/eniq_linux/packages/
+yum upgrade -y ERICpcp_capture_card_conf-CXC1734188-1.0.1-R1B08_EC03.x86_64.rpm
+yum upgrade -y ERICprobe_controller_CXC1734792-2.2.6-R1D06_EC07.noarch.rpm
+
+# Make sure the expected versions are installed
+cd /eniq/installation/core_install/bin/PCP_Aliases
+./GetRPMVersions.sh
+sleep 5s
+
+# Change the pcp_stagelist to install the System Log Changes
+cd /eniq/installation/core_install/etc/
+rm -f pcp_core_inst_stage
+mv pcp_stagelist pcp_stagelist.temp
+touch pcp_stagelist
+echo 'config_syslog' > pcp_stagelist
+echo 'configure_probe_controller' >> pcp_stagelist
+echo 'cleanup' >> pcp_stagelist
+
+# Check content of new file
+cat pcp_stagelist
+sleep 5s
+
+# Move PCP Server probe-controller config files out of harm's way
+echo ""
+echo "    [INFO]    Respond with 'y' to these questions, if prompted..."
+cd /opt/ericsson/probe-controller/probe-controller/etc/app-config
+cp config-probe-extension.xml.rpmnew config-probe-extension.xml
+cp config-probe-base.xml.bk config-probe-base.xml
+
+# Start the install
+cd /eniq/installation/core_install/bin
+./pcp_core_install.bsh
+cd /eniq/installation/core_install/etc
+mv -f pcp_stagelist.temp pcp_stagelist
+
+# Move config-probe-extension.xml to a temp location
+cd /opt/ericsson/probe-controller/probe-controller/etc/app-config
+cp config-probe-extension.xml config-probe-extension.xml.tmp.EC1
+
+# Update the Capture Cards config files.
+# Stop the Capture card service.
+cd /opt/napatech3/bin
+./ntstop.sh
+
+# Copy the Updated files over.
+echo ""
+echo "    [INFO]    Respond with 'y' to these questions, if prompted..."
+cp /opt/ericsson/pcp_capture_card_conf/pcp_capture_card_conf/`cat /eniq/installation/core_install/etc/sys_config.ini | grep filter_type | awk -F"=" {'print $2'}`/ntpcap.ini /opt/napatech3/config/ntpcap.ini
+cp /opt/ericsson/pcp_capture_card_conf/pcp_capture_card_conf/`cat /eniq/installation/core_install/etc/sys_config.ini | grep filter_type | awk -F"=" {'print $2'}`/ntservice.ini /opt/napatech3/config/ntservice.ini
+
+# Start the Capture card service.
+cd /opt/napatech3/bin
+./ntstart.sh
+
+# Configure the filters.
+./ntpl -f /opt/ericsson/pcp_capture_card_conf/pcp_capture_card_conf/`cat /eniq/installation/core_install/etc/sys_config.ini | grep filter_type | awk -F"=" {'print $2'}`/hash_by_ip-6.ntpl
+
+# Test the streams with TCP Dump.
+tcpdump -D
+sleep 5s
+
+# Packet Capture Pre-processor post-install steps
+# Restore the Snapshot on each Packet Capture Pre-processor Rack Mount server
+cd /eniq/installation/core_install/bin/UpgradeScripts
+./BackupRestore.bsh -r
+
+# Move the config-probe-extension.xml back from its temp location
+cd /opt/ericsson/probe-controller/probe-controller/etc/app-config
+cp config-probe-extension.xml.tmp.EC1  config-probe-extension.xml
+
+# Start the probe-controller on each Packet Capture Pre-processor Rack Mount Server
+service probe-controller start
+
+# Delete the tar file and the created directory on each PCP Server:
+cd /var/tmp/
+rm -rf ENIQ_E_R1S_EU01
+
+exit 0 # Success

@@ -1,0 +1,157 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : start_Gn_Simulator_GTP-C_Test.sh
+# Date    : 27/05/2014
+# Revision: R1A01
+# Purpose : start Gn Simulatorfor testing GTP-C EQEV-8132  
+#            
+# usage   : ./start_Gn_Simulator_GTP-C_Test.sh <0/1> <1/2/3>"
+# Depends : 
+# ********************************************************************
+# Version R1A01 : Initial release
+#         R1A02 : Update for TEID_D change
+# Time to run simulator for:
+SEC=70
+
+function printUsage {
+  echo "."
+  echo 1>&2 "usage: ./start_Gn_Simulator_GTP-C_Test.sh <0/1  for target PCP Server> <1/2/3 for GTP Tunnel Management Message>"
+  echo 1>&2 "         where 0 = atrcx2935 and 1 = atsfsx141 for target PCP Server"
+  echo 1>&2 "         and where 1 = create,  2 = update (Location), 3 = delete (Location)"
+  echo 1>&2 "                   4 = update (New SGSN IP),  5 = delete (New SGSN IP) "
+  echo 1>&2 "                   6 = update (New TEID_D),   7 = delete (New TEID_D) "
+  echo 1>&2 "                   PDP Context Request/ Response for GTP Tunnel Management Message"
+  echo "."
+}
+
+
+#main
+if [ $# -ne 2 ] ; then
+  echo "."
+  echo 1>&2 "$0: not enough arguments"
+  printUsage
+  exit 2
+fi
+if [ $1 -gt 1 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 1 value invalid : value = $1"
+  printUsage
+  exit 2
+fi
+
+if [ $2 -gt 9 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 2 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+
+if [ $1 -eq 1 ]
+then
+   ds="eth6"
+   us="eth5"
+   echo "."
+   echo -n 1>&2 "Starting Simulator on atsfsx141: "
+
+
+else
+   ds="eth7"
+   us="eth4"
+   echo "."
+   echo -n 1>&2 "Starting Simulator on atrxc2935: "
+
+fi
+GTPC_index=0
+if [ $2 -eq 1 ]
+then
+   GTPC_index=1
+   echo 1>&2 "Create PDP Context Request / Response"
+   echo "."
+elif [ $2 -eq 2 ]
+then
+   GTPC_index=2
+   echo 1>&2 "Update (location) PDP Context Request / Response"
+   echo "."
+elif [ $2 -eq 3 ]
+then
+   GTPC_index=3
+   echo 1>&2 "delete (location) PDP Context Request / Response"
+   echo "."
+elif [ $2 -eq 4 ]
+then
+   GTPC_index=4
+   echo 1>&2 "Update (New SGSN IP) PDP Context Request / Response"
+   echo "."
+elif [ $2 -eq 5 ]
+then
+   GTPC_index=5
+   echo 1>&2 "delete (New SGSN IP) PDP Context Request / Response"
+   echo "."
+elif [ $2 -eq 6 ]
+then
+   GTPC_index=6
+   echo 1>&2 "Update (New TEID_D) PDP Context Request / Response"
+   echo "."
+
+elif [ $2 -eq 7 ]
+then
+   GTPC_index=7
+   echo 1>&2 "delete (New TEID_D) PDP Context Request / Response"
+   echo "."
+elif [ $2 -eq 8 ]
+then
+   GTPC_index=8
+   echo 1>&2 "Update (New UEIP) PDP Context Request / Response"
+   echo "."
+
+elif [ $2 -eq 9 ]
+then
+   GTPC_index=9
+   echo 1>&2 "delete (New UEIP) PDP Context Request / Response"
+   echo "."
+
+else
+   echo "."
+   echo "."
+   echo 1>&2 "Unknown Argument value for GTP Tunnel Management Message; Received value = $2"
+   printUsage
+   echo "."
+   exit 1
+fi
+
+
+ps -ef |grep simulator|grep -v grep|grep $ds |awk '{ print $2 }' |xargs kill -9 2> /dev/null
+/root/gn-sim/simulator_newGtpc_10Sept14 -i $ds -u $us  gtpcTest/cellsForGtpc gtpcTest/gnForGtpc.cfg gtpcTest/eclipsedownload-traffic.cfg gtpcTest/theOneForGtpc -GTPC $GTPC_index -m 1000 -t $SEC &
+echo "."
+echo "Simulator Started for $SEC seconds"
+echo "."
+
+STARTTIME=$(date +%s)
+elapsed_time=0;
+while [ $elapsed_time -le $SEC ]
+do 
+  sleep 5
+  ENDTIME=$(date +%s)
+  elapsed_time=$(($ENDTIME-$STARTTIME))
+  if [ $elapsed_time -le $SEC ]; then
+    echo -n "$elapsed_time .."
+  fi
+done
+sleep 5
+echo "."

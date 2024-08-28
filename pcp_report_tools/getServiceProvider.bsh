@@ -1,0 +1,38 @@
+
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getPectMaxRate.bsh
+# Date    : 19/08/2014
+# Revision: R1A01
+# Purpose : This will look in the output and grep Service Porvicer field
+# usage   : ./getServiceProvider
+# Depends : output directory  /var/opt/ericsson/pcp/output/captool
+# ********************************************************************
+
+server=$(hostname);
+theDate=$(date +"%Y%m%d%H%M");
+SP_DIR=$(echo "/var/log/ericsson/pcp/sp_"$server"_"$theDate)
+echo "SERVICE PROVIDER: output to $SP_DIR"
+mkdir $SP_DIR
+
+for sp  in FlyCast  Pandora     Slacker     StreamTheWorld  megavideo   Netflix     YouTube     Google  Baidu   Flurry  Andomedia   AdMob   Apple   Qbrick  Tencent-QQ  Facebook    Friendster  Twitter     Myspace     Weibo   SKOUT   Flurv   Flickr  Yahoo   YouMail     RapidShare  megaupload  _2shared    SpeedyShare     FileSonic   Hotfile     iTunes  Android_Market  Microsoft   P2P     PPStream    PPLive  Funshion    Spotify     Ubuntu  McAfee  Symantec    Adobe   AOL     MSN     Viber   Nimbuzz     TeamLava
+do
+  echo $sp
+  zcat /var/opt/ericsson/pcp/output_leo/captool/3g/*/*.gz|awk -F'[|]' '{print $17"| "$18"| "$19"| "$20"| "$21"| "$22"| "$23"| "$24"| "$25"| "$26"| "$27"| "$28"| "$29}'|awk -v serProv=$sp '{if ($0 ~ serProv) {print $0}}' >$SP_DIR/$sp.sp.txt &
+done
+
+echo "Processes started in background... wait for them to finish"

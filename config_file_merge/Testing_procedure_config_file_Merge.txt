@@ -1,0 +1,39 @@
+FOR INFORMATION:
+Read the comments at the top of the source files
+
+TO TEST:
+1) Copy OLD and NEW config Files to atrcxb2313 [/home/leo/config_tool]
+   
+   
+TEST FILES
+classConfigParser.pyc
+config-probe-base.ini
+config-probe-base-old-v1.xml
+config-probe-base-old-v2.xml
+config-probe-base-old-v3.xml
+config-probe-base-V1.xml
+config-probe-base-V2.xml
+config-probe-base-V3.xml
+config-probe-base.xml
+
+SOURCE FILES
+classConfigParser.py
+readIniConfig.py
+update_config_probe_base.py
+
+2) Run following commands 
+ 
+
+  /usr/bin/python ./update_config_probe_base.py config-probe-base-old-v1.xml config-probe-base-V2.xml
+  /usr/bin/python ./update_config_probe_base.py config-probe-base-old-v2.xml config-probe-base-V2.xml
+  /usr/bin/python ./update_config_probe_base.py config-probe-base-old-v3.xml config-probe-base-V2.xml
+  /usr/bin/python ./update_config_probe_base.py config-probe-base.xml config-probe-base-V2.xml
+  
+  /usr/bin/python ./update_config_probe_base.py config-probe-base-old-v1.xml config-probe-base-V1.xml
+  /usr/bin/python ./update_config_probe_base.py config-probe-base-old-v1.xml config-probe-base-V3.xml
+  
+  /usr/bin/python ./update_config_probe_base.py config-probe-base.ini config-probe-base-V2.xml
+  
+  Note: Copy OLD and NEW config Files to atrcxb2313 [/home/leo/config_tool] before running each of the above commands as "new" configs altered.
+  
+3) 

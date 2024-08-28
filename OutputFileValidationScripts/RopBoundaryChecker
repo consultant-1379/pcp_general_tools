@@ -1,0 +1,108 @@
+#!/bin/bash
+#
+# ---------------------------------------------------------
+#
+#    RopBoundaryChecker
+#
+#    Author: Luke Potter - elukpot
+#      Date: 23/07/2013
+#
+# ---------------------------------------------------------
+
+# Define Variables
+minute=""
+lastMinute=""
+line=""
+lastLine=""
+interval=1
+hourTurnInterval=59
+firstRunThrough=1
+debugEnabled=0
+outFile="file_writes.log"
+
+# Functions
+function echoError {
+  echo "    [error]   $@"
+}
+function echoInfo {
+  echo "    [info]    $@"
+}
+function echoDebug {
+  if [ $debugEnabled -eq 1 ]
+  then
+    echo "    [debug]   $@"
+  fi
+}
+function printDebugVariables {
+  if [ $debugEnabled -eq 1 ]
+  then
+	  echoDebug "Minute:      $minute"
+    echoDebug "Last Minute: $lastMinute"
+    echoDebug "Line:        $line"
+    echoDebug "LastLine:    $lastLine"
+    echoDebug "FirstTime:   $firstRunThrough"
+  fi
+}
+function determineInterval {
+  
+  if [ "$(echo $minute - $lastMinute | bc)" != "$interval" ]
+  then
+    echoError "The file writer run between $lastLine and $line was not $interval minute(s) long."
+  elif [[ "$lastMinute" == "59" && "$(echo $lastMinute - $minute | bc)" != "$hourTurnInterval" ]]
+  then
+    echoError "The file writer run between $lastLine and $line was not $hourTurnInterval minute(s) long."
+  else
+    echoDebug "The file writer run between $lastLine and $line was the correct interval."
+  fi
+}
+function outputToFile {
+  # Get an ordered list of files
+  cat /var/log/ericsson/pcp/file_writer.log* \
+      | grep "Starting to print Captool" \
+  	  | awk '{print $1 " "$2}' \
+	    | uniq \
+	    | sort -d \
+	    > $outFile
+  
+  chmod 777 $outFile
+  echoInfo "File Writer times output to file."
+}
+function loopThroughFile {
+  echoInfo "Looping through file."
+  
+  while read line
+  do
+    minute=$(echo $line | awk -F ':' '{print $2}')
+    
+    printDebugVariables
+    
+	if [ $firstRunThrough -ne 1 ]
+    then
+      determineInterval
+    fi
+    
+	if [ $firstRunThrough -eq 1 ]
+    then
+      firstRunThrough=0
+    fi
+    
+	lastMinute=$minute
+    lastLine=$line
+  done < $outFile
+  
+  echoInfo "Finished looping through file."
+}
+function cleanup {
+  
+  rm -f $outFile
+}
+
+# ---------------------------------------------------------
+# Stagelist
+#
+outputToFile
+loopThroughFile
+cleanup
+# ---------------------------------------------------------
+
+exit 0 # SUCCESS

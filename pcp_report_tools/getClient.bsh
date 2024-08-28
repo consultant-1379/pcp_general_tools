@@ -1,0 +1,39 @@
+
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getPectMaxRate.bsh
+# Date    : 19/08/2014
+# Revision: R1A01
+# Purpose : This will look in the output and grep Client field
+# usage   : ./getClient
+# Depends : output directory  /var/opt/ericsson/pcp/output/captool
+# ********************************************************************
+server=$(hostname);
+theDate=$(date +"%Y%m%d%H%M");
+CLIENT_DIR=$(echo "/var/log/ericsson/pcp/client_"$server"_"$theDate)
+echo "CLIENT: output to $CLIENT_DIR"
+mkdir $CLIENT_DIR
+
+
+for client  in Winamp	Android-Media-Player	Safari	Opera	Microsoft-Windows	Ubuntu-APT	Telesphoreo	NcAfee-antivirus	Symantec	Adobe-Update-Manager	GoogleEarth	Fring	Skype	LetvIphoneClient	iPhone-Mail	AppleDaily	iTunes	Android-Market	BitTorrent	BitComet	WordsWithFriends	Storm8	KaW	Smurfs	QQGame	EmpireOL	AAStocks	Money18	ETNet	LiveStockQuote	Viber	KakaoTalk	Installous	Mozilla-Firefox	Chrome	Internet-Explorer	iPhone-Media-Player	YouTube-player	Twitter	YouMail	Zune	TeamLava	LiveCams	KakaoTalk
+
+do
+  echo $client
+  zcat /var/opt/ericsson/pcp/output_leo/captool/3g/*/*.gz|awk -F'[|]' '{print $17"| "$18"| "$19"| "$20"| "$21"| "$22"| "$23"| "$24"| "$25"| "$26"| "$27"| "$28"| "$29}'|awk -v cl=$client '{if ($0 ~ cl) {print $0}}' >$CLIENT_DIR/$client.client.txt &
+done
+
+echo "Processes started in background... wait for them to finish"

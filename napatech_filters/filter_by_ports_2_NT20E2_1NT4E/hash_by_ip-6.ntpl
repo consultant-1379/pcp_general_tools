@@ -1,0 +1,23 @@
+#Delete all filter definitions
+Delete=All
+
+#----------------------------- Macro definitions -----------------------------------
+
+
+#check it's upstream/downstream traffic
+#Assume that port 0 on the napatech is for downlink
+#Assume that port 1 on the napatech is for uplink traffic
+# These assumptions are specific per customer
+
+#return the UDP port numbers
+DefineMacro("mUdpDstPort","Data[DynOffset=DynOffUdpFrame;Offset=2;DataType=ByteStr2]")
+DefineMacro("mUdpSrcPort","Data[DynOffset=DynOffUdpFrame;Offset=0;DataType=ByteStr2]")
+
+#returns the value of the GTP header flag
+DefineMacro("mGtpFlag","Data[DynOffset=DynOffUdpData;Offset=0;DataType=ByteStr1]")
+
+#returns the last byte of the UEIP address for with different flags and directions
+DefineMacro("mByteSrcFlag48","Data[DynOffset=DynOffUdpData;Offset=23;DataType=ByteStr1]")
+DefineMacro("mByteDstFlag48","Data[DynOffset=DynOffUdpdata;Offset=27;DataType=ByteStr1]")
+DefineMacro("mByteSrcFlag50","Data[DynOffset=DynOffUdpData;Offset=27;DataType=ByteStr1]")
+DefineMacro("mByteDstFlag50","Data[DynOffset=DynOffUdpData;Offset=31;DataType=ByteStr1]")

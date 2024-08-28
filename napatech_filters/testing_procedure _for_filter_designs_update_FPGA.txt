@@ -1,0 +1,335 @@
+This is most efficiently completed with multiple putty windows open
+
+
+1) Edit "ntpcap.ini", "ntservice.ini" & "hash_by_ip5.ntpl" 
+2) USe WinScp to copy to atsfsx141 "/opt/napatech3/config" directcory
+3) Stop the napatech
+   cd /opt/napatech3/bin
+  ./ntstop.sh
+  Stopping NTService (this may take a while)
+  NTService stopped                                           [Done]
+
+  ./ntunload.sh
+
+4)Start the napatech
+
+  cd /opt/napatech3/bin
+  ./ntstart.sh
+  Starting NTService (this may take a while)                  [Done]
+
+______________________________________________________________________
+IF PROBLEMS STARTING;
+==> ENSURE PROBE CONREOLLER STOPPED
+    cd /opt/ericsson/probe-controller/probe-controller/bin
+    ./probe-controller stop
+    
+    [in smartone: /etc/init.d/eniq-analysis stop]
+     
+==> eNSURE NO OTHER SERVICE IS USING THE NAPATECH
+     ps -ef |grep pcap
+     ps -ef |grep eniq
+     ps -ef |grep eniq
+     ps -ef |grep pcap
+     ps -ef |grep capt
+     ps -ef |grep java
+     
+     kill -9 <list of process id>
+     
+     [in smartone:
+     
+                ps -ef |grep stream
+                /home/pct/bin/streamStat 60 2 0 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
+                kill -9 32015
+     ]
+
+______________________________________________________________________
+
+
+5) Run the NTPL
+
+    cd /opt/napatech3/bin
+  ./ntpl -f ../config/hash_by_ip-6.ntpl
+
+6a) Run tcpdump
+
+  cd /opt/napatech3/bin
+  tcpdump -D
+  1.eth0
+  2.usbmon1 (USB bus number 1)
+  3.usbmon2 (USB bus number 2)
+  4.nt3g0 (NT 3G configured device. Stream 0. Transmit 0)
+  5.nt3g1 (NT 3G configured device. Stream 1. Transmit 1)
+  6.nt3g2 (NT 3G configured device Stream 2. No transmit)
+  7.nt3g3 (NT 3G configured device Stream 3. No transmit)
+  8.nt3g4 (NT 3G configured device Stream 4. No transmit)
+  9.nt3g5 (NT 3G configured device Stream 5. No transmit)
+  10.nt3g6 (NT 3G configured device Stream 6. No transmit)
+  11.nt3g7 (NT 3G configured device Stream 7. No transmit)
+  12.nt3g8 (NT 3G configured device Stream 8. No transmit)
+  13.nt3g9 (NT 3G configured device Stream 9. No transmit)
+  14.nt3g10 (NT 3G configured device Stream 10. No transmit)
+  15.nt3g11 (NT 3G configured device Stream 11. No transmit)
+  16.nt3g12 (NT 3G configured device Stream 12. No transmit)
+  17.nt3g13 (NT 3G configured device Stream 13. No transmit)
+  18.usbmon3 (USB bus number 3)
+  19.any (Pseudo-device that captures on all interfaces)
+  20.lo
+
+--------------------------------------------------------------------------
+2xNT20E2 cards
+1.nt3g0 (NT 3G configured device Stream 0. No transmit)
+2.nt3g1 (NT 3G configured device Stream 1. No transmit)
+3.nt3g2 (NT 3G configured device Stream 2. No transmit)
+4.nt3g3 (NT 3G configured device Stream 3. No transmit)
+5.nt3g4 (NT 3G configured device Stream 4. No transmit)
+6.nt3g5 (NT 3G configured device Stream 5. No transmit)
+7.nt3g6 (NT 3G configured device Stream 6. No transmit)
+8.nt3g7 (NT 3G configured device Stream 7. No transmit)
+9.nt3g8 (NT 3G configured device Stream 8. No transmit)
+10.nt3g9 (NT 3G configured device Stream 9. No transmit)
+11.nt3g10 (NT 3G configured device Stream 10. No transmit)
+12.nt3g11 (NT 3G configured device Stream 11. No transmit)
+13.nt3g12 (NT 3G configured device Stream 12. No transmit)
+14.nt3g13 (NT 3G configured device Stream 13. No transmit)
+15.nt3g14 (NT 3G configured device Stream 14. No transmit)
+16.nt3g15 (NT 3G configured device Stream 15. No transmit)
+17.nt3g16 (NT 3G configured device Stream 16. No transmit)
+18.nt3g17 (NT 3G configured device Stream 17. No transmit)
+19.nt3g18 (NT 3G configured device Stream 18. No transmit)
+20.nt3g19 (NT 3G configured device Stream 19. No transmit)
+21.nt3g20 (NT 3G configured device Stream 20. No transmit)
+22.nt3g21 (NT 3G configured device Stream 21. No transmit)
+_----------------------------------------------------------------------_
+
+
+6b) Check the filter resource allocation.. See Alfred Email on max resources
+   cd /opt/napatech3/bin
+   ./ntpl -e "FilterInfo=All"
+
+
+
+7) In directory "/shared_app/Napatech/hash_testing" run following commands
+
+   cd /shared_app/Napatech/hash_testing
+   rm -f n*.pcap
+ 
+
+
+8) Ensure no rogue TCP dumps are running. If they are kill them
+
+    cd /shared_app/Napatech/hash_testing
+    ps -ef|grep tcp
+    kill-9 12345
+
+9) Run tcpdump on all the open interfaces from the napatech
+
+    cd /shared_app/Napatech/hash_testing
+    ./tcpdump17.sh
+
+    choose from
+
+    -rwxrwxrwx. 1 root root        976 Oct  9 10:35 tcpdump.sh
+    -rwxr-xr-x. 1 root root        419 Oct 23 12:40 tcpdump13.sh
+    -rwxrwxrwx. 1 root root        575 Oct 23 14:43 tcpdump17.sh
+    -rwxrwxrwx. 1 root root        976 Oct 15 10:36 tcpdump29.sh
+    -rwxrwxrwx. 1 root root        173 Oct 17 09:19 tcpdump4.sh
+    -rwxrwxrwx. 1 root root        234 Oct  9 10:36 tcpdump7.sh
+    -rwxrwxrwx. 1 root root        323 Oct 17 11:36 tcpdump9.sh
+
+  edit one of the above if necessary
+10) run the simulator; splitting traffic for up and downsteam
+
+  cd /root/esirich
+  ./simulator -i nt3g0 -u nt3g1 -t 20 gtp-hack/*.cfg
+
+  nt3g0 is downstrem traffic
+  nt3g1 is upstrem trafic
+  
+      ./simulator [switches] [config-files]
+    where switches are one or more of:-
+    -f/--file <filename> to output to a file
+    -i/--interface <device> to output (downstream) to a device
+    -t/--time <seconds> to run before exiting
+    -u/--upstream <device> to output upstream traffic to another device
+    -h/--help to print this message and exit
+
+
+
+11) cd /shared_app/Napatech/hash_testing
+    cd /shared_app/Napatech/hash_testing
+    ls -lSr
+13)When simulator finished, Go to atrcxb2313
+    cd /home/leo/dl-380-pcaps/test_18Oct12
+    rm -f n*.pcap
+    rm -f ue*.txt
+    rm -f ips*.txt
+
+
+12) go to atsfsx141 & Copy files to atrcxb2313
+    cd /shared_app/Napatech/hash_testing
+    sftp> put n*.pcap /home/leo/dl-380-pcaps/test_18Oct12
+
+13)Go to atrcxb2313
+    cd /home/leo/dl-380-pcaps/test_18Oct12
+    ./ue-ip-search5_sim.sh nt3g
+
+14) On atrcxb2313 [x-windows], Use wireshark to inspect the files to check that the correct IP when to the correct pcap[as perfilter design] and for duplicates
+
+15) On atrcxb2313, when ue-ip-search5_sim.sh completed
+    cd /shared_app/Napatech/hash_testing
+    cat ue_ip_search_duplicates.txt
+
+    Check for duplicates.
+
+     cat ue_ip_search_duplicates.txt
+    Tue Oct 23 12:55:51 IST 2012
+
+
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g2.txt,ips-pcap-nt3g7.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g2.txt,ips-pcap-nt3g10.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g2.txt,ips-pcap-nt3g11.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g7.txt,ips-pcap-nt3g2.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g7.txt,ips-pcap-nt3g10.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g7.txt,ips-pcap-nt3g11.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g10.txt,ips-pcap-nt3g2.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g10.txt,ips-pcap-nt3g7.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g10.txt,ips-pcap-nt3g11.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g11.txt,ips-pcap-nt3g2.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g11.txt,ips-pcap-nt3g7.txt
+    Duplicate IP: 127.0.0.1,ips-pcap-nt3g11.txt,ips-pcap-nt3g10.txt
+
+
+    I think 127.0.0.1 is OK.. it not a UEIP cos they start with 4.3.2.xxx
+    
+    
+************************************************************************
+UPDATING THE FPGA IMAGE
+
+1) Check Current  FPGA FLASH IMAGE #0
+
+    ./productinfo
+
+    productinfo (v. 2.3.0.20411)
+    ==============================================================================
+    System: 2.3.0.20411
+    ------------------------------------------------------------------------------
+    Adapters:  1
+    ==============================================================================
+    Adapter 0  NT20E2-CAP Capture Network Adapter PCIe Gen2 2x10Gb SFP+
+    ------------------------------------------------------------------------------
+    P/N                      : 810-0024-02-01
+    Main Board Serial No     : 0000-119472
+    Main Board PBA           : 073-008700-10
+    Main Board AVR           : 1.3
+    FPGA flash image #0      : 200-9220-42-10
+    FPGA flash image #1      : 200-9220-42-18
+    Front Board Serial No    : 0000-119477
+    Front Board PBA          : 073-008800-11
+    Front Board AVR          : 1.3
+    ------------------------------------------------------------------------------
+
+2) The image is found in ntcap_package_3gd_linux_13.1.1/images	 
+  
+	untar it 
+	tar xfz nt20e2_fpga_200-9220-45-06.tar.gz
+	
+3) Use the imgctrl tool found in ntcap_package_3gd_linux_13.1.1/imgctrl	 
+   tar xfz nt_imgctrl_1.3.0.tar.gz
+
+4) Ensure that you dont have any filter assign statements in your ntpcap.ini. 	 
+
+5) Update the image as follows 
+
+	
+  cd /opt/napatech3/bin/
+	#Stop the driver
+  ./ntstop.sh
+  #unload the driver to inactive image bank
+  ./ntunload.sh
+  
+  cd /shared_app/Napatech/ntcap_package_3gd_linux_13.1.1/imgctrl/
+  #upload the image to adapter 0 (this needs to be done for every adapter 1, 2 etc)
+  ./imgctrl -p -a 0 --ntimg <path to image> --ini <your initials>
+  #switch the image banks so that the active bank contains the new image
+  ./imgctrl -s -a 0
+  #confirm the switching and update the primary image
+  ./imgctrl -s -a 0 --confirm	 
+  
+7) cd /opt/napatech3/bin/
+   ./ntstart
+
+8)  ./productinfo
+
+    productinfo (v. 2.3.0.20411)
+    ==============================================================================
+    System: 2.3.0.20411
+    ------------------------------------------------------------------------------
+    Adapters:  1
+    ==============================================================================
+    Adapter 0  NT20E2-CAP Capture Network Adapter PCIe Gen2 2x10Gb SFP+
+    ------------------------------------------------------------------------------
+    P/N                      : 810-0024-02-01
+    Main Board Serial No     : 0000-119472
+    Main Board PBA           : 073-008700-10
+    Main Board AVR           : 1.3
+    FPGA flash image #0      : 200-9220-45-06
+    FPGA flash image #1      : 200-9220-42-18
+    Front Board Serial No    : 0000-119477
+    Front Board PBA          : 073-008800-11
+    Front Board AVR          : 1.3
+    ------------------------------------------------------------------------------
+
+9) 
+    ./adapterinfo
+    adapterinfo (v. 2.3.0.20411)
+    ==============================================================================
+    System: 2.3.0.20411
+    ------------------------------------------------------------------------------
+    Adapters:  1
+    Ports:     2
+    ==============================================================================
+    Adapter: 0 - NT20E2-CAP Capture Network Adapter PCIe Gen2 2x10Gb SFP+
+    ------------------------------------------------------------------------------
+    Bus ID:         00:07:00:00
+    FPGA ID:        200-9220-45-06-00
+    Feature level:      N-CAP12
+    Profile:            CaptureReplay
+    Supported profiles: Capture CaptureReplay TrafficGen
+
+    AVR main version:  1.3f
+    AVR front version: 1.3f
+
+    Ports:            2
+    Port Range:       0 - 1
+    Descriptor:       Standard
+    Timestamp:        Native Unix
+    TimestampMethod:  EOF (End of Frame)
+
+    RX host buffers:  14
+    TX host buffers:   2
+
+    Port #0 MAC : 00.0D.E9.02.C9.31
+    Port #1 MAC : 00.0D.E9.02.C9.32
+
+    SDRAM size  : 1GB
+
+    Bus type                : PCI Express 2
+    Link width supported    : x8
+    Link width negotiated   : x8
+    Link speed              : 5.0 GT/s
+    Max payload supported   : 256
+    Max payload negotiated  : 256
+    Max expected throughput : 29075 Mbps
+    ==============================================================================
+
+ ********************************************************************************************
+ RECOGNISING GGSN IP in GTP-U DATA
+ 1) Look for "http" or "https" GTP messages
+ 2) Destination of ACK and RST is always a web page:
+ 3) So get the inner IP DESTINATIOn Address. Type it into Internet Explorer. If it returms with a WEB page or ERROR MESSAGE -404 => then GGSN
+    is the outer IP DESTINATION ADDRESS and UEIP is the INNER IP SOurce ADDRESS.
+ 4) Confirm [in smartone] by checking the macB address [= 00:21:59] the the ETHERNET LEVEL " Destination: JuniperN_bd:31:fe (00:21:59:bd:31:fe)"
+    If DESTINATION mac starts with 00:21:59, then DESTINATION OUTER IP is GGSN address
+
+ ********************************************************************************************
+    

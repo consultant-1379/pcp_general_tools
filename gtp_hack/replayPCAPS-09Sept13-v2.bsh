@@ -1,0 +1,105 @@
+#!/bin/bash
+
+echo .
+echo "This script is a dirty hack used to reply FET PCAP files "
+echo "It operate from the directory /FETDATA"
+echo "pcap's are lcoated on aremote server atrcxb1837:/FETDATA/pcap/ and SCP to  /FETDATA"
+echo "It required a seperated and matching list of gtpc and gtpu pcaps listed in th files /FETDATA/gtpc.txt and /FETDATA/gtpu.txt"
+echo .
+echo "Edit this file as needed"
+echo .
+echo "Press any Key to continue or CTRL -C to exit"
+echo .
+read inp
+
+
+rm -f /FETDATA/*_done.txt
+
+IFS=$'\n' read -d '' -r -a gtpuFiles < /FETDATA/gtpu.txt
+IFS=$'\n' read -d '' -r -a gtpcFiles < /FETDATA/gtpc.txt
+tLen=${#gtpuFiles[@]}
+#tLen=3
+
+echo "Total of " $tLen " GTP PCAP's to replay "
+
+for (( i=0; i<${tLen}; i++ ));
+do
+  file_gtpu=$(echo ${gtpuFiles[$i]})
+  file_gtpc=$(echo ${gtpcFiles[$i]})
+  echo "LOADING PCAP :"$file_gtpu " : " $file_gtpc
+  
+  scp root@atrcxb1837:/FETDATA/pcap/$file_gtpu /FETDATA/
+  scp root@atrcxb1837:/FETDATA/pcap/$file_gtpc /FETDATA/
+  
+  
+  #./simulator_09Sept13 -r "/FETDATA/"$file_gtpc -i eth6 -u eth5 -ci eth1 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1 
+  #./simulator_09Sept13 -r "/FETDATA/"$file_gtpu -i eth6 -u eth5 -ci eth1 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1
+  
+  #TO TEST use -m 50000 and -i lo -u lo & change gtpu  to gtpu
+  if [ $i -eq 0 ]
+  then
+    #echo "*****************************************************"
+    #echo "*RUN GTP-u in SEPERATE WINDOW. /root/gn-sim         *"
+    #echo "*****************************************************"
+    #echo "/root/gn-sim/simulator_09Sept13 -r "/FETDATA/"$file_gtpu -i eth6 -u eth5 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1"
+
+    #echo "*****************************************************"
+    #echo "*RUN GTP-C in SEPERATE WINDOW /root/gn-sim2.         *"
+    #echo "*****************************************************"
+    #echo "/root/gn-sim/simulator_09Sept13 -r "/FETDATA/"$file_gtpc -i eth6 -u eth5 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71  -t 1 "
+    #echo .
+    /root/gn-sim/simulator_09Sept13 -r "/FETDATA/"$file_gtpu -i eth6 -u eth5 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1  1>/dev/nul & 
+    /root/gn-sim/simulator_09Sept13 -r "/FETDATA/"$file_gtpc -i eth6 -u eth5 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1  1>/dev/nul &
+    
+    echo .
+    echo "Ready to Go. Press any Key to continue"
+    echo .
+    read inp
+    touch "/FETDATA/"$file_gtpu"_done.txt"
+    touch "/FETDATA/"$file_gtpc"_done.txt"
+    echo "PLAYING PCAP :"$file_gtpu " : " $file_gtpc
+     
+  else
+    echo "Second or subsequent run"
+    sleep 5
+    /root/gn-sim/simulator_09Sept13 -r "/FETDATA/"$file_gtpu -i eth6 -u eth5 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1  1>/dev/nul & 
+    /root/gn-sim/simulator_09Sept13 -r "/FETDATA/"$file_gtpc -i eth6 -u eth5 -ici 21600 -g 5c:5e:ab:20:c5:f2,5c:5e:ab:20:b8:00,5c:5e:ab:20:b8:7f,5c:5e:ab:20:c2:f2,5c:5e:ab:20:c6:71 -t 1  1>/dev/nul &
+      
+    j=$((i-1))
+    previous_file_gtpu=$(echo ${gtpuFiles[$j]})
+    previous_file_gtpc=$(echo ${gtpcFiles[$j]})
+    previous_file_gtpu_done=$(echo "/FETDATA/"$previous_file_gtpu"_done.txt")
+    previous_file_gtpc_done=$(echo "/FETDATA/"$previous_file_gtpc"_done.txt")
+
+    echo "PREVIOUS DONE = " $previous_file_gtpu_done : $previous_file_gtpc_done
+    while true; do
+     
+      if [ -e $previous_file_gtpu_done ]
+      then
+        
+        if [ -e $previous_file_gtpc_done ]
+          then
+          echo "DONE......"$previous_file_gtpu
+          echo "DONE......"$previous_file_gtpc
+          
+          rm -f "/FETDATA/"$previous_file_gtpu"_done.txt"
+          rm -f "/FETDATA/"$previous_file_gtpc"_done.txt"
+          touch "/FETDATA/"$file_gtpu"_done.txt"
+          touch "/FETDATA/"$file_gtpc"_done.txt"
+          break
+        fi
+      fi
+    done;
+
+    echo "REMOVING PREVIOUS PCAP :"$previous_file_gtpu " : " $previous_file_gtpc
+    rm -f "/FETDATA/"$previous_file_gtpu
+    rm -f "/FETDATA/"$previous_file_gtpc
+    
+    echo "PLAYING PCAP :"$file_gtpu " : " $file_gtpc
+  fi
+    
+done
+
+rm -f /FETDATA/*_done.txt
+
+

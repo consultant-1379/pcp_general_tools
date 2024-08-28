@@ -1,0 +1,105 @@
+[nt3g0]
+#Dump stream for non-gtp traffic
+StreamId=0
+NTInterface=Packet
+RX1="Assign[StreamId=0;Priority=0] = ((Port==0) AND (mUdpDstPort!=2152) AND (mUdpDstPort!=2123) AND (mUdpSrcPort!=2123))"
+RX2="Assign[StreamId=0;Priority=0] = ((Port==1) AND (mUdpSrcPort!=2152) AND (mUdpDstPort!=2123) AND (mUdpSrcPort!=2123))"
+
+
+[nt3g1]
+#gtp-c traffic
+StreamId=1
+NTInterface=Packet
+RX1="Assign[StreamId=1;Priority=1] = ((Port==0) AND (mUdpDstPort==2123) AND (Data[DynOffset=DynOffUdpData;Offset=1;DataType=ByteStr1] != 255))"
+RX2="Assign[StreamId=1;Priority=1] = ((Port==1) AND (mUdpSrcPort==2123) AND (Data[DynOffset=DynOffUdpData;Offset=1;DataType=ByteStr1] != 255))"
+# ports 4 to 7 inclsive are on NT4E collecting Gn data that could be in either direction.
+RX3="Assign[StreamId=1;Priority=1] = ((Port==4) AND ((mUdpDstPort==2123) OR (mUdpSrcPort==2123)) AND (Data[DynOffset=DynOffUdpData;Offset=1;DataType=ByteStr1] != 255))"
+RX4="Assign[StreamId=1;Priority=1] = ((Port==5) AND ((mUdpDstPort==2123) OR (mUdpSrcPort==2123)) AND (Data[DynOffset=DynOffUdpData;Offset=1;DataType=ByteStr1] != 255))"
+RX5="Assign[StreamId=1;Priority=1] = ((Port==6) AND ((mUdpDstPort==2123) OR (mUdpSrcPort==2123)) AND (Data[DynOffset=DynOffUdpData;Offset=1;DataType=ByteStr1] != 255))"
+RX6="Assign[StreamId=1;Priority=1] = ((Port==7) AND ((mUdpDstPort==2123) OR (mUdpSrcPort==2123)) AND (Data[DynOffset=DynOffUdpData;Offset=1;DataType=ByteStr1] != 255))"
+
+
+
+
+#what is left is gtp-u traffic
+[nt3g2]
+StreamId=2
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=2;Priority=3;color=2] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (0..31))))"
+RX2="Assign[StreamId=2;Priority=3;color=2] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (0..31))))"
+RX3="Assign[StreamId=2;Priority=3;color=2] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (0..31))))"
+RX4="Assign[StreamId=2;Priority=3;color=2] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (0..31))))"
+
+[nt3g3]
+StreamId=3
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=3;Priority=3;color=3] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (32..63))))"
+RX2="Assign[StreamId=3;Priority=3;color=3] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (32..63))))"
+RX3="Assign[StreamId=3;Priority=3;color=3] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (32..63))))"
+RX4="Assign[StreamId=3;Priority=3;color=3] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (32..63))))"
+
+
+[nt3g4]
+StreamId=4
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=4;Priority=3;color=4] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (64..95))))"
+RX2="Assign[StreamId=4;Priority=3;color=4] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (64..95))))"
+RX3="Assign[StreamId=4;Priority=3;color=4] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (64..95))))"
+RX4="Assign[StreamId=4;Priority=3;color=4] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (64..95))))"
+
+
+[nt3g5]
+StreamId=5
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=5;Priority=3;color=5] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (96..127))))"
+RX2="Assign[StreamId=5;Priority=3;color=5] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (96..127))))"
+RX3="Assign[StreamId=5;Priority=3;color=5] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (96..127))))"
+RX4="Assign[StreamId=5;Priority=3;color=5] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (96..127))))"
+
+
+[nt3g6]
+StreamId=6
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=6;Priority=3;color=6] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (128..159))))"
+RX2="Assign[StreamId=6;Priority=3;color=6] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (128..159))))"
+RX3="Assign[StreamId=6;Priority=3;color=6] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (128..159))))"
+RX4="Assign[StreamId=6;Priority=3;color=6] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (128..159))))"
+
+
+
+[nt3g7]
+StreamId=7
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=7;Priority=3;color=7] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (160..191))))"
+RX2="Assign[StreamId=7;Priority=3;color=7] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (160..191))))"
+RX3="Assign[StreamId=7;Priority=3;color=7] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (160..191))))"
+RX4="Assign[StreamId=7;Priority=3;color=7] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (160..191))))"
+
+
+[nt3g8]
+StreamId=8
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=8;Priority=3;color=8] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (192..223))))"
+RX2="Assign[StreamId=8;Priority=3;color=8] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (192..223))))"
+RX3="Assign[StreamId=8;Priority=3;color=8] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (192..223))))"
+RX4="Assign[StreamId=8;Priority=3;color=8] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (192..223))))"
+
+
+
+[nt3g9]
+StreamId=9
+NTInterface=Packet
+#You can have filter definitions here or in a separate file
+RX1="Assign[StreamId=9;Priority=3;color=9] = ((Port==0) AND ((mGtpFlag == 48 AND mByteSrcFlag48 == (224..255))))"
+RX2="Assign[StreamId=9;Priority=3;color=9] = ((Port==0) AND ((mGtpFlag == 50 AND mByteSrcFlag50 == (224..255))))"
+RX3="Assign[StreamId=9;Priority=3;color=9] = ((Port==1) AND ((mGtpFlag == 48 AND mByteDstFlag48 == (224..255))))"
+RX4="Assign[StreamId=9;Priority=3;color=9] = ((Port==1) AND ((mGtpFlag == 50 AND mByteDstFlag50 == (224..255))))"
+
+

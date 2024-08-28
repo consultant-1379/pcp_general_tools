@@ -1,0 +1,182 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getTestReport.bshh
+# Date    : 14/04/2014
+# Revision: R1A03
+# Purpose : This will look in the pect.log & filewriter log and 
+#           get vital statistics for a test reporty
+# usage   : ./getTestReport.bsh
+# Depends : log directory is /var/log/ericsson/pcp/
+# ********************************************************************
+# Version R1A02 : New Blockages report
+# Version R1A03 : NEw GTP-C MApping means using getPectMaxNumFlows_3.bsh
+# Version R1A04 : Using getBlockages.bsh
+
+
+server=$(hostname); 
+theDate=$(date +"%Y%m%d%H%M"); 
+OUTPUT_FILE=$(echo "testReport_"$server"_"$theDate".txt")
+cd /var/log/ericsson/pcp
+echo "NEW GTPC- MAPPING VERSION"
+echo.
+echo "GENERATING REPORT TO FILE: "$OUTPUT_FILE
+echo .
+echo "Make Sure following files exist:"
+echo "                                /var/tmp/getPectMaxRate.bsh"
+echo "                                /var/tmp/getPectMaxNumFlows_3.bsh"
+echo "                                /var/tmp/getIMSIcount.bsh"
+echo "                                /var/tmp/getBlockages.bsh"
+echo .
+echo .
+echo "Press any KEY to continue (CTRl-C to STOP)"
+read 
+
+echo "START START START START START START" > $OUTPUT_FILE
+echo "GENERATING REPORT : START"
+
+echo "SERVER             :"$server>> $OUTPUT_FILE
+printf "DATE               :">> $OUTPUT_FILE
+date >> $OUTPUT_FILE
+echo "VERSIONS           :">> $OUTPUT_FILE
+cat /eniq/installation/core_install/bin/PCP_Aliases/RPMVersions >> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+
+
+TESTING OF PCP-PECT-Version-VXX-YY:  ... the reason for running the test 
+
+ 
+echo "SUMMARY:" >> $OUTPUT_FILE                   : 
+echo "{code}" >> $OUTPUT_FILE
+echo "< Summary goes here >" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "DETAILS:" >> $OUTPUT_FILE 
+echo "{code}" >> $OUTPUT_FILE
+cat >>$OUTPUT_FILE<<EOL
+
+
+LINE RATE                  : XXXXXX Gbps
+EVENT RATE                 : MERGED MAX of XXXXXX Events / Minute (~XXXXXX eps):
+IMSI COUNT CACHE           : XXXXXX IMSI loaded to cache.
+IMSI COUNT OUTPUT FILE     : XXXXXX Unique, XXXXXX  Total;  XXXXXX (Y.YM) processed By PCP Classifers
+PACKET LOSS SEQ MAP SIZE   : 254 for Internet to UE and 63 for UE to Internet;
+Duration                   : XXXXXX hours
+Blockages                  : XXXXXX  in XXXXXX hours
+TOTAL # PACKETS DROPPED(PB): XXXXX
+TOTAL # PACKETS DROPPED(N) : XXXXX
+TOTAL # PACKETS PRECESSED  : XXXXXX
+MERGED CLASSIFICATION      : MAX OF XXXXXX CLASSIFICATION EVENTS PER MINUTE (XXXXXX % MERGE)
+MERGED THROUGHPUT          : MAX OF XXXXXX THROUGHPUT EVENTS PER MINUTE (XXXXXXX % MERGE)
+MEM STATE                  : XXXXXXX (Normal / Unstable/ High)
+MEM Usage                  : XXXXXXX %.
+CPU STATE                  : XXXXXXX (Normal / Unstable/ High)
+CPU USAGE (Nominal)        : XXXXXXX% - XXXXXXX%
+CPU USAGE (peak)           : XXXXXXX - XXXXXXX% for hourly disk cleanups
+FLOWS STATS                : MAX ACTIVE FLOWS PER ROP= XXXXXXXXX ; MAX FLOWS REMOVED PER ROP= XXXXXXXXX; FLOW CAP = XXXXXXXXXXXXXXX
+EOL
+echo "{code}" >> $OUTPUT_FILE
+
+
+
+echo "GENERATING REPORT : # GTP-C SESSIONS"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "GTP-C Cache" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+cat license.log |grep "broadcast" >> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+cat pect.log |grep "Finished reading the GTP-C cache" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "GENERATING REPORT : LINE RATE"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "LINE RATE" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+/var/tmp/getPectMaxRate.bsh >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "GENERATING REPORT : MAX FLOWS PROCESSED BY CLASSIFIER"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "MAX FLOWS PROCESSED BY CLASSIFIER" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+/var/tmp/getPectMaxNumFlows_3.bsh >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "GENERATING REPORT : IMSI at OUTPUT FILE...This takes a while"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "IMSI at OUTPUT FILE" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+/var/tmp/getIMSIcount.bsh >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+
+echo "GENERATING REPORT : UPTIME"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+/var/tmp/getUptime.bsh >> $OUTPUT_FILE 
+echo "{code}" >> $OUTPUT_FILE 
+
+
+echo "GENERATING REPORT : MEM & CPU"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "MEM & CPU" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+top -b -n 1 -u pcpuser >> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+top -b -n 5 |grep ntservice  >> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+top -b -n 10 |grep pectMain >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+
+
+echo "GENERATING REPORT : BLOCKAGES"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+/var/tmp/getBlockages.bsh >> $OUTPUT_FILE
+
+
+echo "GENERATING REPORT : MERGE STATS"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "MERGE STATS" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+cat file_writer.log|grep MERGE|grep captool |awk 'BEGIN{max=0} {if($8>max) max=$8;} END{print "Captool = " max;}'>> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+cat file_writer.log|grep MERGE|grep staple |awk 'BEGIN{max=0} {if($8>max) max=$8;} END{print "Staple = " max;}'>> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+tail -20 file_writer.log >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "GENERATING REPORT : DISK CLEANUP HOURLY"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "DISK CLEANUP HOURLY" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+cat file_writer.log |grep "Cleanup" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "GENERATING REPORT : NAPATECH"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "NAPATECH" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+printf "\n\n" >> $OUTPUT_FILE
+echo "Put profilling and monitoring here ....." >> $OUTPUT_FILE
+echo .
+echo "ADD NAPATECH STUFF MANUALLY"
+echo .
+printf "\n\n" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+
+echo "GENERATING REPORT : END"
+echo "END END  END END END END" >> $OUTPUT_FILE

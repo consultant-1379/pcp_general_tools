@@ -1,0 +1,94 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getBlockages.bsh
+# Date    : 03/01/2013
+# Revision: R1A01
+# Purpose : This will look in the pect.log of the PCP
+#           and make some estimation of the ROP Blocked and packets lost.
+# usage   : ./getBlockages.bsh
+# Depends : log directory is /var/log/ericsson/pcp/
+# ********************************************************************
+
+function  get_blockages {
+
+    pectLog=$1
+    printf "\n\nPECT STARTED($pectLog): \n" >> $OUTPUT_FILE
+    cat $pectLog|grep Started >> $OUTPUT_FILE
+
+
+    
+    total=0
+
+    printf "\n\nNumber NUM PACKETS LOST ($pectLog): \n" >> $OUTPUT_FILE
+
+    for bufNUm in 1 2 3 4 5 6 7 8 ;
+      do
+            echo -n "PacketBuffer $bufNUm " >> $OUTPUT_FILE
+            cat $pectLog |grep "FREE"|grep " PACKETBUFFER \[$bufNUm\]" |awk 'BEGIN{maxLoss=0;} {maxLoss=maxLoss+$32;} END{print "Number Packet Lost = "maxLoss}'>> $OUTPUT_FILE
+    done;
+
+    for bufNUm in 1 2 3 4 5 6 7 8 ; do
+            maxBytes=$(cat $pectLog |grep "FREE"|grep " PACKETBUFFER \[$bufNUm\]" |awk 'BEGIN{maxLoss=0;} {maxLoss=maxLoss+$32;} END{print maxLoss}')
+            total=$((total+maxBytes))
+    done;
+    echo  "TOTAL # PACKETS DROPPED = " $total >> $OUTPUT_FILE
+
+    printf "\n\nNumber NUM ROPS BLOCKED($pectLog): \n" >> $OUTPUT_FILE
+    for bufNUm in 1 2 3 4 5 6 7 8 ; do
+            echo -n "PacketBuffer $bufNUm " >> $OUTPUT_FILE
+            cat $pectLog |grep "FREE"|grep " PACKETBUFFER \[$bufNUm\]"|awk '{print $1"; "$2"; "$29"; "$32;}'|awk -F'[;//]' 'BEGIN{maxROP=0} {if($4>maxROP) maxROP=maxROP+1;} END{print "Max #ROP Blocked = "((maxROP)) }' >> $OUTPUT_FILE
+    done;
+
+    printf "\n\nNumber DETAIL($pectLog): \n" >> $OUTPUT_FILE
+    for bufNUm in 1 2 3 4 5 6 7 8 ;
+      do
+          echo "PacketBuffer $bufNUm " >> $OUTPUT_FILE
+          cat $pectLog |grep "FREE"|grep " PACKETBUFFER \[$bufNUm\]" |awk 'BEGIN{} {if($32>1) {print $1"; "$2"; "$29"; "$32;}} END{}' >> $OUTPUT_FILE
+    done;
+
+
+    printf "\nNote the PCP Start time when considering Number Blockages\n" >> $OUTPUT_FILE
+
+}
+
+
+
+#main
+
+server=$(hostname);
+theDate=$(date +"%Y%m%d%H%M");
+OUTPUT_FILE=$(echo "testReport_Blockages_"$server"_"$theDate".txt")
+cd /var/log/ericsson/pcp
+
+echo "GENERATING REPORT : BLOCKAGES"
+printf "\n\n\n\n\n" >> $OUTPUT_FILE
+echo "BLOCKAGES" >> $OUTPUT_FILE
+echo "{code}" >> $OUTPUT_FILE
+if [ -f /var/log/ericsson/pcp/pect.log.1 ]; then
+    get_blockages "/var/log/ericsson/pcp/pect.log.1"
+fi
+if [ -f /var/log/ericsson/pcp/pect.log ]; then
+    get_blockages "/var/log/ericsson/pcp/pect.log"
+fi
+
+
+
+echo "{code}" >> $OUTPUT_FILE
+
+cat $OUTPUT_FILE
+
+

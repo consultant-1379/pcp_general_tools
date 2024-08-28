@@ -1,0 +1,82 @@
+#! /bin/bash
+#
+# Author: elukpot
+#   Date: 16/07/13
+#
+
+# Stop the PCP server.
+function stop_pcp {
+	
+	service pcp stop
+}
+
+# Pre-upgrade Steps.
+function pre_upgrade_steps {
+	
+	# Check for files required by the Restore.
+	if [ ! -f /opt/ericsson/pcp/pect/pect/properties.xml.original ]; then
+		cp /opt/ericsson/pcp/pect/pect/properties.xml.bk /opt/ericsson/pcp/pect/pect/properties.xml.original
+	fi
+	
+	if [ ! -f /opt/ericsson/pcp/pect/pect/log_config.xml.original ]; then
+		cp /opt/ericsson/pcp/pect/pect/log_config.xml /opt/ericsson/pcp/pect/pect/log_config.xml.original
+	fi
+
+	# Backup the system.
+	/eniq/installation/core_install/bin/UpgradeScripts/BackupRestore.bsh –b
+	if [ ! -f /var/tmp/ericsson_pcp_backup/pcp_backup.tar.gz ]; then
+		exit 1
+	fi
+}
+
+# Upgrade the Applicationa nd Installation software.
+function upgrade_software {
+
+	mws_ip=$(cat /eniq/installation/config/mws_ip)
+	sw_version=3.2.7
+	
+	# Application Software Install.
+	cd /net/$mws_ip/export/SW_LOCATION/ENIQ_EVENTS/ENIQ_EVENTS/$sw_version/eniq_base_sw/eniq_linux/packages
+	yum upgrade -y ERICpcp_capture_card_conf*.rpm
+	yum upgrade -y ERICpcp-pect-*.rpm
+
+	# Installation Software Install.
+	cd /net/$mws_ip/export/SW_LOCATION/ENIQ_EVENTS/ENIQ_EVENTS/$sw_version/eniq_base_sw/eniq_linux/pcp
+	cp pcp_core_install.tar.gz /eniq/installation/
+	cd /eniq/installation/
+	gtar -xf pcp_core_install.tar.gz
+}
+
+# Restore the backup.
+function post_upgrade_steps {
+
+	if [ ! -f /var/tmp/ericsson_pcp_backup/pcp_backup.tar.gz ]; then
+		exit 1
+	fi
+	
+	/eniq/installation/core_install/bin/UpgradeScripts/BackupRestore.bsh -r -mergeconfig
+
+	# Update the RPM Versions file.
+	/eniq/installation/core_install/bin/PCP_Aliases/PopulateRPMVersions.sh
+}
+
+# Try to start the PCP server.
+function start_pcp {
+
+	service pcp start
+	
+	pid=$(ps -ef | grep pec[t] | awk '{print $2}')
+	if [ "$pid" == "" ]; then
+		ldconfig
+		service pcp start
+	fi
+}
+
+# Stage List
+stop_pcp
+pre_upgrade_steps
+upgrade_software
+post_upgrade_steps
+start_pcp
+
+exit 0

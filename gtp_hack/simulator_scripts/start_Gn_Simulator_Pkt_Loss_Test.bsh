@@ -1,0 +1,125 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : start_Gn_Simulator_Pkt_Loss_Test.bsh
+# Date    : 27/05/2014
+# Revision: R1A01
+# Purpose : start Gn Simulatorfor testing packet Loss EQEV-1416
+#            
+# usage   : ./start_Gn_Simulator_Pkt_Loss_Test.bsh <0/1> <1-10>"
+# Depends : 
+# ********************************************************************
+# Version R1A01 : Initial release
+
+# Time to run simulator for:
+SEC=360
+PKTLOSS_MSG_ARR=("INVALID SELECTION"
+"0.2 to 0.35% Loss Uplink" 
+"0.2 to 0.35% Loss Downlink" 
+"0.3 to 0.4% Loss Uplink" 
+"0.3 to 0.4% Loss Downlink" 
+"0.6 to 0.7% Loss Uplink" 
+"0.6 to 0.7% Loss Downlink" 
+"1.0 to 1.15% Loss Uplink" 
+"1.0 to 1.15% Loss Downlink" 
+"1.9 to 2.1% Loss Uplink" 
+"1.9 to 2.1% Loss Downlink")
+
+function printUsage {
+  echo "."
+  echo 1>&2 "usage: ./start_Gn_Simulator_Pkt_Loss_Test.sh <0/1  for target PCP Server> < 1 - 10 for desired  packet loss option>"
+  echo 1>&2 "         where 0 = atrcx2935 and 1 = atlssfsx141 for target PCP Server"
+  echo 1>&2 "         and where"
+  for index in 1 2 3 4 5 6 7 8 9 10
+  do
+    echo "         "$index": " ${PKTLOSS_MSG_ARR[$index]}
+  done 
+  echo "."
+}
+
+
+
+#main
+if [ $# -ne 2 ] ; then
+  echo "."
+  echo 1>&2 "$0: not enough arguments"
+  printUsage
+  exit 2
+fi
+if [ $1 -gt 1 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 1 value invalid : value = $1"
+  printUsage
+  exit 2
+fi
+
+if [ $2 -gt 10 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 2 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+
+if [ $2 -eq 0 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 2 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+PKT_LOSS_INDEX=$2
+
+if [ $1 -eq 1 ]
+then
+   ds="eth6"
+   us="eth5"
+   echo "."
+   echo -n 1>&2 "Starting Simulator on atsfsx141: "
+
+
+else
+   ds="eth7"
+   us="eth4"
+   echo "."
+   echo -n 1>&2 "Starting Simulator on atrxc2935: "
+
+fi
+
+echo ${PKTLOSS_MSG_ARR[$2]}
+
+
+
+ps -ef |grep simulator|grep -v grep|grep $ds |awk '{ print $2 }' |xargs kill -9 2> /dev/null
+/root/gn-sim/simulator_newGtpc_30May14 -i $ds -u $us  gtpcTest/cellsForGtpc gtpcTest/gnForGtpc.cfg  pktLossTest/eclipsedownload-pktLossTraffic$PKT_LOSS_INDEX.cfg gtpcTest/theOneForGtpc -m 100000 -t $SEC &
+echo "."
+echo "Simulator Started for $SEC seconds"
+echo "."
+
+STARTTIME=$(date +%s)
+elapsed_time=0;
+while [ $elapsed_time -le $SEC ]
+do 
+  sleep 5
+  ENDTIME=$(date +%s)
+  elapsed_time=$(($ENDTIME-$STARTTIME))
+  if [ $elapsed_time -le $SEC ]; then
+    echo -n "$elapsed_time .."
+  fi
+done
+sleep 5
+echo "."

@@ -1,0 +1,22 @@
+
+This is a filter to read in a binary file and produce an xxd-style hex dump, but with the sequence of bytes on the command line replaced with non-hex strings (e.g. WW XX YY ZZ).  This is intended to make it possible to produce xxd-style files which can be modified using block search and replace.
+
+  xxsubst x1 x2 x3 x4 ...
+
+Look for the sequence of bytes x1 x2 x3 x4 (and so on) in a binary file, and produce an xxd type output that 
+replaces the sequence with some invalid hex digits so they can be replaced in a text editor.
+
+So
+
+[esirich@atrcxb2313 xxsubst]$ cat /shared_app/pcap_test_files/Single_UE_IP_4_3615_packets.pcap | ./xxsubst 79 cb 59 ef        
+000000: d4c3 b2a1 0200 0400 0000 0000 0000 0000
+000010: ffff 0000 0100 0000 f5f3 6b4f e66b 0b00
+000020: 9100 0000 9100 0000 0021 59bd 3000 0030
+000030: 8816 3964 8100 40c1 0800 4504 007b 1cc0
+000040: 0000 3f11 bd70 0a52 9bca cb4e 2fd3 0403
+000050: 0868 0067 1f1d 30ff 0057 444e 0ba5 4500
+000060: 0057 0000 4000 4011 ebfb WWXX YYZZ 0a70
+...
+
+I hope it will be useful.
+

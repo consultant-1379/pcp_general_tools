@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appconfig xmlns="http://www.ericsson.com/app-config">
+    <!-- ========================================================================= -->
+    <!-- Parameters for Data source -->
+    <!-- ========================================================================= -->
+
+
+    <AppStartTypeList>
+        <!-- Link to the Staple/Captool configuration properties  -->
+        <AppStartType>PCP</AppStartType>
+
+    </AppStartTypeList>
+
+
+    <properties>
+        <property>
+            <key>stats.collection.active</key>
+            <value>true</value>
+        </property>
+         <property>
+            <key>stats.collection.period</key>
+            <value>300000</value><!--5 minutes -->
+        </property>
+        <property>
+            <key>db.storage.active</key>
+            <value>true</value>
+        </property>
+        <property>
+            <key>db.max.thread.counter.delay</key>
+            <value>500</value>
+        </property>
+        <property>
+            <key>db.max.thread.count</key>
+            <value>5</value>
+        </property>
+
+        <!-- parameters for database connections ends -->
+
+        <!-- ========================================================================= -->
+        <!-- Parameters for XML parsing of Event structure -->
+        <!-- ========================================================================= -->
+
+        <property>
+            <key>schematype.namespace</key>
+            <value>http://www.ericsson.com/SchemaTypes</value>
+        </property>
+        <property>
+            <key>schematype.schema</key>
+            <value>xml/SchemaTypes.xsd</value>
+        </property>
+        <property>
+            <key>schematype.xml.file</key>
+            <value>xml/SchemaTypes.xml</value>
+        </property>
+        <!-- Parameters for XML parsing of Event structure ends -->
+
+        <!-- ========================================================================= -->
+        <!-- Parameters for publishing -->
+        <!-- ========================================================================= -->
+
+         <!-- The choice of publisher - current options are hazelcast or local.  Default option is local -->
+        <property>
+            <key>publisher.type</key>
+            <value>local</value>
+        </property>
+
+        <!-- The publishing topic is the topic that will be used to publish events
+            on -->
+        <property>
+            <key>publishing.event.topic.name</key>
+            <value>event.topic</value>
+        </property>
+        <!-- The publishing buffer size is the number of events that will be buffered
+            before events are sent to publishing subscribers -->
+        <property>
+            <key>publishing.buffer.size</key>
+            <value>1048756</value>
+        </property>
+        <!-- Events are buffered in publishing buffers. These buffers are flushed
+            periodically. This parameter sets the interval for buffer flushing. It is
+            set in milliseconds. -->
+        <property>
+            <key>publishing.loading.scan.interval</key>
+            <value>600000</value> <!-- Scan interval is long for loading because publishing buffers are explicitly
+                flushed by loaders -->
+        </property>
+        <property>
+            <key>publishing.correlating.scan.interval</key>
+            <value>10000</value> <!-- Scan interval is short for correlation because publishing buffers are
+                not explicitly flushed by correlations -->
+        </property>
+
+        <!-- ========================================================================= -->
+        <!-- Parameters for IQ datasources -->
+        <!-- ========================================================================= -->
+        <!-- Repdb datasource -->
+        <property>
+            <key>iq.repdb.datasource.user</key>
+            <value>dwhrep</value>
+        </property>
+        <property>
+            <key>iq.repdb.datasource.password</key>
+            <value>dwhrep</value>
+        </property>
+        <property>
+            <key>iq.repdb.datasource.database.name</key>
+            <value>repdb</value>
+        </property>
+        <property>
+            <key>iq.repdb.datasource.server.name</key>
+            <value>atrcxb2134.athtem.eei.ericsson.se</value>
+        </property>
+        <property>
+            <key>iq.repdb.datasource.server.port</key>
+            <value>2641</value>
+        </property>
+
+        <!-- Dwhdb datasource -->
+        <property>
+            <key>iq.dwhdb.datasource.user</key>
+            <value>dc</value>
+        </property>
+        <property>
+            <key>iq.dwhdb.datasource.password</key>
+            <value>dc</value>
+        </property>
+        <property>
+            <key>iq.dwhdb.datasource.database.name</key>
+            <value>dwhdb</value>
+        </property>
+        <property>
+            <key>iq.dwhdb.datasource.server.name</key>
+            <value>atrcxb2134.athtem.eei.ericsson.se</value>
+        </property>
+        <property>
+            <key>iq.dwhdb.datasource.server.port</key>
+            <value>2640</value>
+        </property>
+        <!-- ========================================================================= -->
+        <!-- Parameters for IQ binary file creation -->
+        <!-- ========================================================================= -->
+
+        <!-- Byte order for IQ binary files -->
+        <property>
+            <key>iq.binary.file.byte.order</key>
+            <value>LITTLE_ENDIAN</value>
+        </property>
+        <property>
+            <key>iq.binary.directory</key>
+            <value>/home/ezhelao/eniqtmp/</value>
+        </property>
+        <property>
+            <key>iq.binary.file.buffer.size</key>
+            <value>65536</value>
+        </property>
+        <property>
+            <key>iq.binary.flush.records</key>
+            <value>100000</value>
+        </property>
+        <property>
+            <key>iq.binary.flush.interval</key>
+            <value>5000</value>
+        </property>
+
+        <!-- ========================================================================= -->
+        <!-- Parameters for XML parsing of Event structure -->
+        <!-- ========================================================================= -->
+
+        <property>
+            <key>param.preamble</key>
+            <value>EVENT_PARAM_</value>
+        </property>
+
+        <property>
+            <key>value.preamble</key>
+            <value>EVENT_VALUE_</value>
+        </property>
+        <property>
+            <key>event.namespace</key>
+            <value>http://www.ericsson.com/PmEvents</value>
+        </property>
+        <property>
+            <key>event.schema</key>
+            <value>xml/EventFormat.xsd</value>
+        </property>
+        <!-- Parameters for XML parsing of Event structure ENDS -->
+
+        <!-- ========================================================================= -->
+        <!-- Server specific configuration -->
+        <!-- ========================================================================= -->
+
+        <property>
+            <key>celltrace.OSS.path</key>
+            <value>/home/dcuser/data-archive/Telia/2011-09-22_to_2011-09-23/dummyeNodeB/
+            </value>
+        </property>
+        <property>
+            <key>mme.OSS.path</key>
+            <value>/home/dcuser/ft-data/925/sgeh/</value>
+        </property>
+        <property>
+            <key>general.server.core.file.collection.mode</key>
+            <!-- Local or Remote -->
+            <value>REMOTE</value>
+        </property>
+        <property>
+            <key>rnc.OSS.path</key>
+            <value>/home/dcuser/ft-data/925/gpeh/</value>
+        </property>
+        <property>
+            <key>general.server.radio.file.collection.mode</key>
+            <!-- Local or Remote -->
+            <value>REMOTE</value>
+        </property>
+        <property><!-- file collection path in the local machine -->
+            <key>general.filecopy.destination</key>
+            <value>/var/opt/ericsson/cep-mediation/output/</value>
+        </property>
+        <property>
+            <key>general.oss.server.ip</key>
+            <value>atloadgenx06.athtem.eei.ericsson.se</value>
+        </property>
+        <property>
+            <key>general.oss.server.user</key>
+            <value>dcuser</value>
+        </property>
+        <property>
+            <key>general.oss.server.pwd</key>
+            <value>EirEPasz</value>
+        </property>
+        <property>
+            <key>general.oss.server.isAdminServer</key>
+            <value>true</value>
+        </property>
+        <property>
+            <key>general.server.mme.batch.size</key>
+            <value>100</value>
+        </property>
+        <property>
+            <key>general.server.rnc.batch.size</key>
+            <value>100</value>
+        </property>
+        <property>
+            <key>general.server.batch.size</key>
+            <value>100</value>
+        </property>
+        <property>
+            <key>general.server.collection.start.delay</key>
+            <value>60</value> <!-- In seconds -->
+        </property>
+        <property>
+            <key>general.server.collection.interval</key>
+            <value>60</value> <!-- In seconds -->
+        </property>
+        <property>
+            <key>general.probe.log.server.ip</key>
+            <value>atloadgenx06.athtem.eei.ericsson.se</value>
+        </property>
+        <property>
+            <key>general.probe.log.server.user</key>
+            <value>dcuser</value>
+        </property>
+        <property>
+            <key>general.probe.log.server.pwd</key>
+            <value>EirEPasz</value>
+        </property>
+        <property>
+            <key>general.probe.log.server.path</key>
+            <value>/var/opt/ericsson/probe-controller/output</value>
+        </property>
+        <property>
+            <key>general.probe.log.batch.size</key>
+            <value>100</value>
+        </property>
+        <property>
+            <!-- Number of times to retry enriching UP event with IMSI before dropping -->
+            <key>general.userplane.retry.count</key>
+            <value>2</value>
+        </property>
+        <property>
+            <!-- Delay between retrying UP event enrichment, in milliseconds -->
+            <key>general.userplane.retry.delay</key>
+            <value>120000</value> <!-- 2 minutes -->
+        </property>
+        <!-- ========================================================================= -->
+        <!-- Hyperic Specific Properties -->
+        <!-- ========================================================================= -->
+
+        <property>
+            <key>install.dir</key>
+            <value>/opt/ericsson/cep-mediation/cep-mediation/</value>
+        </property>
+        <property>
+            <key>server.type</key>
+            <value>CEP Mediation Server</value>
+        </property>
+        <property>
+            <key>server.version</key>
+            <value>1.0.1</value>
+        </property>
+
+        <!-- ========================================================================= -->
+        <!-- Precorrelator Properties -->
+        <!-- ========================================================================= -->
+        <!-- Precorrelator can be configured for either latency or consistency,
+            but not both. -->
+
+        <!-- minimum amount of time event has to be in the queue; millis; default
+            should be 60 seconds -->
+        <property>
+            <key>precorrelator.min.wait.time</key>
+            <value>300000</value>
+        </property>
+        <!-- minimum percentage of events that have to satisfy wait time condition;
+            default should be 0.95 -->
+        <property>
+            <key>precorrelator.min.percentage</key>
+            <value>0.95</value>
+        </property>
+        <!-- relative delay between consecutive partition scans; millis; default
+            10 seconds -->
+        <property>
+            <key>precorrelator.backoff.period</key>
+            <value>60000</value>
+        </property>
+
+
+        <property>
+            <!-- If enabled, multiple isolated Esper instances will be instantiated
+                and sessions will be load balanced based on hash of session ID. This will
+                enabled multiple threads to process session events in parallel since Esper
+                uses table level locking on window. -->
+            <key>esper.session.partitioning</key>
+            <value>true</value>
+        </property>
+        <property>
+            <!-- How many isolated Esper instances to create. Dont set more than physical
+                cores. On 8 core machine, set to 6. -->
+            <key>esper.session.partition.count</key>
+            <value>6</value>
+        </property>
+
+
+        <property>
+            <!-- If true then user plane events (TCP & Classification) will be forwarded
+                to database even though enrichment with SGEH data has failed. IMSI and related
+                fields will be null in the database. This should be enabled at initial sanity
+                check install just to verify how successful is enrichment. For production
+                purposes should be enabled only if there is enough DB capacity. -->
+            <key>test.forward.up.unmatched</key>
+            <value>true</value>
+        </property>
+        <property>
+            <!-- Set to true if TCP partials should not be loaded to database and
+                should be silently dropped. Should be false at initial install, if we see
+                to large volume hammering the database, set to false. -->
+            <key>up.drop.tcp.partials</key>
+            <value>false</value>
+        </property>
+
+        <property>
+            <!-- Use also Service Request events for imsi lookup for user plane -->
+            <key>general.userplane.enable.service.request</key>
+            <value>true</value>
+        </property>
+        <property>
+            <!-- Use also classification for imsi lookup for user plane -->
+            <key>general.userplane.enable.classification</key>
+            <value>true</value>
+        </property>
+        <property>
+            <!-- Use also RAU events for imsi lookup for user plane -->
+            <key>general.userplane.enable.rau</key>
+            <value>true</value>
+        </property>
+        <property>
+            <!-- Use also ISRAU events for imsi lookup for user plane -->
+            <key>general.userplane.enable.israu</key>
+            <value>true</value>
+        </property>
+
+        <property>
+            <!-- If True the loader will delete the Staple ROP file once it has being
+                loaded -->
+            <key>staple.deleteRemoteRopFile</key>
+            <value>false</value>
+        </property>
+        <property>
+            <!-- If True the loader will delete the Captool ROP file once it has being
+                loaded -->
+            <key>captool.deleteRemoteRopFile</key>
+            <value>false</value>
+        </property>
+
+        <property>
+            <key>ip.partition.ttl</key>
+            <value>1800000</value>
+        </property>
+
+        <property>
+            <!-- disable/enable internal system utilization -->
+            <key>internal.disable.isu</key>
+            <value>false</value>
+        </property>
+
+        <property>
+            <!-- How long should ISU events live. -->
+            <key>internal.isu.ttl</key>
+            <value>600000</value>
+        </property>
+
+        <property>
+            <!-- If merge of GPEH session takes longer than this millis, then
+                log info message -->
+            <key>sgeh.merge.report.threshold</key>
+            <value>1000</value>
+        </property>
+        <property>
+            <!-- If true merge of GPEH session with SGEH is disabled -->
+            <key>sgeh.merge.skip</key>
+            <value>false</value>
+        </property>
+        <property>
+            <!-- If true rrc measurement reports(like inter frequency and rat) without scrambling code will be processed -->
+            <key>rrc.measurement.process.without.sc</key>
+            <value>true</value>
+        </property>
+
+        <property>
+            <key>java.rmi.server.port</key>
+            <value>1099</value>
+        </property>
+
+        <property>
+        	<!-- cache refresh period for the look up service, value is in minutes -->
+            <key>lookupservice.cache.refresh.period</key>
+            <value>1440</value>  <!-- Default value is 1 day -->
+        </property>
+
+    </properties>
+
+    <!-- ========================================================================= -->
+    <!-- Process Definitions -->
+    <!-- ========================================================================= -->
+    <hosts>
+		<host master="true" ip="123.45.678.90">
+			<process procid="144">
+   				<service service-id="11">
+					<name>PcapDistributorService_11</name>
+					<class>com.ericsson.cepmediation.server.service.PcapDistributorServiceProvider_11
+					</class>
+					<init-method>init_11</init-method>
+					<proc-enabled>true_11</proc-enabled>
+					<!-- The following are the possible list of arguments:
+						live=true : Indicates if the Distributor should run off a live interface or from a list of PCAP files in the given directory
+						capture_location=nt3g1 : The interface name or the directory to run off.
+						pcapDistributorPort=12345 : The port the distributor shall use
+						file_capture_iterations=-1 : Only applicable for offline use.  The number of times to replay the pcap files
+ 					-->
+ 					<args>
+						live=false_11
+						capture_location=/shared_app/pcapFiles/_11
+						pcapDistributorPort=99999_11
+					</args>
+ 				</service>
+
+ 				<service service-id="12">
+					<name>StapleService_12</name>
+					<class>com.ericsson.cepmediation.server.service.StapleServiceProvider_12
+					</class>
+					<init-method>init_12</init-method>
+					<proc-enabled>true_12</proc-enabled>
+					<!-- The following are the possible list of arguments:
+	 					ipAddressAndMaskA: IP, port and mask of Net A (port is optional)
+	 					ipAddressAndMaskB: IP, port and mask of Net B (port is optional)
+	 					macA: MAC address (or prefix) of the Net A device
+	 					macB: MAC address (or prefix) of the Net B device
+	 					pcapDistributor: The host:port where the pcapdistributor is running
+	 					untunnel: Indicates if the pcapmerger should untunnel the GTP packets
+					 -->
+					<args>
+						macB=00:21:59_12
+						pcapDistributor=localhost:99999_12
+						untunnel=true_12
+					</args>
+				</service>
+
+				<service service-id="13">
+					<name>CaptoolService_13</name>
+					<class>com.ericsson.cepmediation.server.service.CaptoolServiceProvider_13
+					</class>
+					<init-method>init_13</init-method>
+					<proc-enabled>true_13</proc-enabled>
+					<!-- The following are the mandatory list of arguments:
+	 					instanceId: 0-255; identification of the captool instance; if more instances started, each should have a different ID
+	 					pcapDistributor: The host:port where the pcapdistributor is running
+	 					untunnel: Indicates if the pcapmerger should untunnel the GTP packets
+					-->
+					<args>
+						instanceId=0_13
+						pcapDistributor=localhost:99999_13
+						untunnel=true_13
+					</args>
+				</service>
+   				<service service-id="14">
+					<name>PcapDistributorService_14</name>
+					<class>com.ericsson.cepmediation.server.service.PcapDistributorServiceProvider_14
+					</class>
+					<init-method>init_14</init-method>
+					<proc-enabled>true_14</proc-enabled>
+					<!-- The following are the possible list of arguments:
+						live=true : Indicates if the Distributor should run off a live interface or from a list of PCAP files in the given directory
+						capture_location=nt3g1 : The interface name or the directory to run off.
+						pcapDistributorPort=12345 : The port the distributor shall use
+						file_capture_iterations=-1 : Only applicable for offline use.  The number of times to replay the pcap files
+ 					-->
+ 					<args>
+						live=false_14
+						capture_location=/shared_app/pcapFiles/_14
+						pcapDistributorPort=99999_14
+					</args>
+ 				</service>
+
+ 				<service service-id="15">
+					<name>StapleService_15</name>
+					<class>com.ericsson.cepmediation.server.service.StapleServiceProvider_15
+					</class>
+					<init-method>init_15</init-method>
+					<proc-enabled>true_15</proc-enabled>
+					<!-- The following are the possible list of arguments:
+	 					ipAddressAndMaskA: IP, port and mask of Net A (port is optional)
+	 					ipAddressAndMaskB: IP, port and mask of Net B (port is optional)
+	 					macA: MAC address (or prefix) of the Net A device
+	 					macB: MAC address (or prefix) of the Net B device
+	 					pcapDistributor: The host:port where the pcapdistributor is running
+	 					untunnel: Indicates if the pcapmerger should untunnel the GTP packets
+					 -->
+					<args>
+						macB=00:21:59_15
+						pcapDistributor=localhost:99999_15
+						untunnel=true_15
+					</args>
+				</service>
+
+				<service service-id="16">
+					<name>CaptoolService_16</name>
+					<class>com.ericsson.cepmediation.server.service.CaptoolServiceProvider_16
+					</class>
+					<init-method>init_16</init-method>
+					<proc-enabled>true_16</proc-enabled>
+					<!-- The following are the mandatory list of arguments:
+	 					instanceId: 0-255; identification of the captool instance; if more instances started, each should have a different ID
+	 					pcapDistributor: The host:port where the pcapdistributor is running
+	 					untunnel: Indicates if the pcapmerger should untunnel the GTP packets
+					-->
+					<args>
+						instanceId=1_16
+						pcapDistributor=localhost:99999_16
+						untunnel=true_16
+					</args>
+				</service>
+   				<service service-id="17">
+					<name>GTPCMergerService_17</name>
+					<class>com.ericsson.cepmediation.server.service.GTPCMergerServiceProvider_17
+					</class>
+					<init-method>init_17</init-method>
+					<proc-enabled>true_17</proc-enabled>
+					<!-- The following are the possible list of arguments:
+ 						live=true : Indicates if the GTPC merger should run off a live interface or from a list of PCAP files in the given directory
+						interval=n : This is the interval in minutes between runs of the GTP-C merger service
+						gtpc_source: The interface or file from which to collect GTP-C packets, this argument can be supplied
+						             more than once to specify multiple collection interfaces
+ 					-->
+ 					<args>
+ 						live=false_17
+						merge_interval=1_17
+						gtpc_source=/shared_app/pcapFiles/gtpc_stream31_23032012.pcap_17
+					</args>
+ 				</service>
+
+				<proc-arguments>
+					<argument>
+						<param-name>max.mem</param-name>
+						<param-value>4096m</param-value>
+					</argument>
+					<argument>
+						<param-name>init.mem</param-name>
+						<param-value>4096m</param-value>
+					</argument>
+				</proc-arguments>
+			</process>
+      <process procid="145">
+   				<service service-id="21">
+					<name>PcapDistributorService_21</name>
+					<class>com.ericsson.cepmediation.server.service.PcapDistributorServiceProvider_21
+					</class>
+					<init-method>init_21</init-method>
+					<proc-enabled>true_21</proc-enabled>
+					<!-- The following are the possible list of arguments:
+						live=true : Indicates if the Distributor should run off a live interface or from a list of PCAP files in the given directory
+						capture_location=nt3g1 : The interface name or the directory to run off.
+						pcapDistributorPort=12345 : The port the distributor shall use
+						file_capture_iterations=-1 : Only applicable for offline use.  The number of times to replay the pcap files
+ 					-->
+ 					<args>
+						live=false_21
+						capture_location=/shared_app/pcapFiles/_21
+						pcapDistributorPort=99999_21
+					</args>
+ 				</service>
+
+ 				<service service-id="22">
+					<name>StapleService_22</name>
+					<class>com.ericsson.cepmediation.server.service.StapleServiceProvider_22
+					</class>
+					<init-method>init_22</init-method>
+					<proc-enabled>true_22</proc-enabled>
+					<!-- The following are the possible list of arguments:
+	 					ipAddressAndMaskA: IP, port and mask of Net A (port is optional)
+	 					ipAddressAndMaskB: IP, port and mask of Net B (port is optional)
+	 					macA: MAC address (or prefix) of the Net A device
+	 					macB: MAC address (or prefix) of the Net B device
+	 					pcapDistributor: The host:port where the pcapdistributor is running
+	 					untunnel: Indicates if the pcapmerger should untunnel the GTP packets
+					 -->
+					<args>
+						macB=00:21:59_22
+						pcapDistributor=localhost:99999_22
+						untunnel=true_22
+					</args>
+				</service>
+
+				<service service-id="23">
+					<name>CaptoolService_23</name>
+					<class>com.ericsson.cepmediation.server.service.CaptoolServiceProvider_23
+					</class>
+					<init-method>init_23</init-method>
+					<proc-enabled>true_23</proc-enabled>
+					<!-- The following are the mandatory list of arguments:
+	 					instanceId: 0-255; identification of the captool instance; if more instances started, each should have a different ID
+	 					pcapDistributor: The host:port where the pcapdistributor is running
+	 					untunnel: Indicates if the pcapmerger should untunnel the GTP packets
+					-->
+					<args>
+						instanceId=4_23
+						pcapDistributor=localhost:99999_23
+						untunnel=true_23
+					</args>
+				</service>
+
+				<proc-arguments>
+					<argument>
+						<param-name>max.mem</param-name>
+						<param-value>4096m</param-value>
+					</argument>
+					<argument>
+						<param-name>init.mem</param-name>
+						<param-value>4096m</param-value>
+					</argument>
+				</proc-arguments>
+			</process>
+						
+		</host>
+    </hosts>
+</appconfig>

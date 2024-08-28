@@ -1,0 +1,215 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : start_Gn_Simulator_TCP_Throughput_Test.bsh
+# Date    : 27/05/2014
+# Revision: R1A01
+# Purpose : start Gn Simulatorfor testing TCP Throughput EQEV-6445
+#            
+# usage   : ./start_Gn_Simulator_TCP_Throughput_Test.bsh <0/1> <1/2> <Mode>"
+# Depends : 
+# ********************************************************************
+# Version R1A01 : Initial release
+
+
+
+function printUsage {
+  echo "."
+  echo 1>&2 "usage: ./start_Gn_Simulator_TCP_Throughput_Test.sh <0/1  for target PCP Server> < 1 = UPLINK 2 = DOWNLINK TEST> < 1 = continuous Mode 2 = intermittant Mode >"
+  echo 1>&2 "         where 0 = atrcx2935 and 1 = atlssfsx141 for target PCP Server"
+  echo "."
+}
+
+function waitForTest {
+    SEC=$1
+    STARTTIME=$(date +%s)
+    elapsed_time=0;
+    while [ $elapsed_time -le $((SEC-1)) ]
+    do 
+      ENDTIME=$(date +%s)
+      elapsed_time=$(($ENDTIME-$STARTTIME))
+      if [ $((elapsed_time%5)) -eq 0 ]; then
+        echo -n "$elapsed_time .."
+      fi
+      sleep 1
+    done
+    echo "$(($ENDTIME-$STARTTIME)) ($SEC)"
+}
+
+function countdownToStart {
+    echo "."
+    echo -n "COUNTDOWN TO SIMULATOR START: "
+    REMAINDER=60;
+    until [  $REMAINDER -lt 2 ]; do
+             EPOCTIME=$(date +%s);REMAINDER=$((EPOCTIME%60));
+             if [ $REMAINDER -gt 2 ]
+             then
+                echo -n $((60-REMAINDER)) ".. "
+                sleep 1
+             fi
+    done
+    echo "." 
+}
+#main
+if [ $# -ne 3 ] ; then
+  echo "."
+  echo 1>&2 "$0: not enough arguments"
+  printUsage
+  exit 2
+fi
+if [ $1 -gt 1 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 1 value invalid : value = $1"
+  printUsage
+  exit 2
+fi
+
+if [ $2 -gt 2 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 2 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+
+if [ $2 -eq 0 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 2 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+
+
+if [ $3 -gt 2 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 3 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+
+if [ $3 -eq 0 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument 3 value invalid : value = $2"
+  printUsage
+  exit 2
+fi
+
+
+
+if [ $1 -eq 1 ]
+then
+   ds="eth6"
+   us="eth5"
+   echo "."
+   echo -n 1>&2 "Starting Simulator on atsfsx141: "
+
+
+else
+   ds="eth7"
+   us="eth4"
+   echo "."
+   echo -n 1>&2 "Starting Simulator on atrxc2935: "
+
+fi
+
+DIRECTION=$2
+if [ $DIRECTION -eq 1 ]
+then
+   SEC=130
+   echo -n 1>&2 "UPLINK TEST: "
+elif [ $DIRECTION -eq 2 ]
+then
+   SEC=20
+   echo -n 1>&2 "DOWNLINK TEST: "
+else
+   echo "."
+   echo "."
+   echo 1>&2 "Unknown Argument value for DIRECTION ; Received value = $2"
+   printUsage
+   echo "."
+   exit 1
+fi
+
+MODE=$3
+# Time to run simulator for:
+DEFAULT_SEC=70
+
+if [ $MODE -eq 1 ]
+then
+   SEC_TO_RUN=130
+   echo 1>&2 "CONTINUOUS MODE FOR $SEC_TO_RUN SECONDS"
+elif [ $MODE -eq 2 ]
+then
+   SEC_TO_RUN=45
+   SEC_TO_PAUSE=15
+   echo 1>&2 "INTERMITTANT MODE: CONTINUOUS FOR $DEFAULT_SEC SECONDS, THEN BURSTS OF $SEC_TO_PAUSE SECONDS PAUSE AND $SEC_TO_RUN SECONDS RUN"
+else
+   echo "."
+   echo "."
+   echo 1>&2 "Unknown Argument value for RUN MODE; Received value = $3"
+   printUsage
+   echo "."
+   exit 1
+fi
+
+
+ps -ef |grep simulator|grep -v grep|grep $ds |awk '{ print $2 }' |xargs kill -9 2> /dev/null
+
+if [ $MODE -eq 1 ]
+then
+    countdownToStart
+    /root/gn-sim/simulator_newGtpc_30May14 -i $ds -u $us  gtpcTest/cellsForGtpc gtpcTest/gnForGtpc.cfg  tcpThroughput/eclipsedownload-tcpThroughput$DIRECTION.cfg gtpcTest/theOneForGtpc -m 100000 -t $SEC_TO_RUN > /dev/null 2>&1 &
+    echo "."
+    echo "Simulator Started for $SEC_TO_RUN seconds"
+    echo "."
+    waitForTest $SEC_TO_RUN
+elif [ $MODE -eq 2 ]
+then
+    countdownToStart
+    /root/gn-sim/simulator_newGtpc_30May14 -i $ds -u $us  gtpcTest/cellsForGtpc gtpcTest/gnForGtpc.cfg  tcpThroughput/eclipsedownload-tcpThroughput$DIRECTION.cfg gtpcTest/theOneForGtpc -m 100000 -t $DEFAULT_SEC > /dev/null 2>&1 &
+    echo "."
+    echo "Simulator Started for $DEFAULT_SEC seconds"
+    echo "."
+    waitForTest $DEFAULT_SEC
+
+          
+    for i in 1 2 3
+    do
+      echo "Simulator PAUSED for $SEC_TO_PAUSE seconds; LOOP $i"
+      echo "."
+      waitForTest $SEC_TO_PAUSE
+      
+      /root/gn-sim/simulator_newGtpc_30May14 -i $ds -u $us  gtpcTest/cellsForGtpc gtpcTest/gnForGtpc.cfg  tcpThroughput/eclipsedownload-tcpThroughput$DIRECTION.cfg gtpcTest/theOneForGtpc -m 100000 -t $SEC_TO_RUN > /dev/null 2>&1 &
+      echo "."
+      echo "Simulator Started for $SEC_TO_RUN seconds"
+      echo "."
+      waitForTest $SEC_TO_RUN
+    done
+    
+else
+   echo "."
+   echo "."
+   echo 1>&2 "Unknown Argument value for RUN MODE; Received value = $3"
+   printUsage
+   echo "."
+   exit 1
+fi
+
+

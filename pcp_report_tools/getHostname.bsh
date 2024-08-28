@@ -1,0 +1,39 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getHostname.bsh
+# Date    : 18/03/2014
+# Revision: R1A01
+# Purpose : This will look in the staple output files and 
+#           report host name stats (Debug mode only)
+# usage   : ./getHostname.bsh
+# Depends : output directory  /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz
+# ********************************************************************
+
+echo "PCP-PECT must be in debug  mode for classifier"
+echo .
+echo "GENERATING HOSTNAME STATISTICS FROM OUTPUT FILES"
+echo .
+TOTAL_BS_N=$(zcat /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz |awk 'BEGIN{count=0; noHostN=0} {count++;if($21=="\\N") {noHostN++}} END{print noHostN}')
+TOTAL_RECORDS=$(zcat /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz |awk 'BEGIN{count=0; noHostN=0} {count++;if($21=="\\N") {noHostN++}} END{print count}')
+
+TOTAL_HTTP=$(zcat /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz|awk '{print $1": "$2":"$21}' |grep  -c ":HTTP_http")
+TOTAL_HTTPD=$(zcat /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz|awk '{print $1": "$2":"$21}' |grep -c ":HTTPD_")
+TOTAL_HTTPNO=$(zcat /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz|awk '{print $1": "$2":"$21}' |grep  -c ":HTTP_NO_HOST")
+TOTAL_NONHTTP=$(zcat /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial/*/*.gz|awk '{print $1": "$2":"$21}' |grep -c ":NON_HTTP_NO_HOST")
+TOTAL=$((TOTAL_HTTP + TOTAL_HTTPD + TOTAL_HTTPNO +TOTAL_NONHTTP))
+echo "# \N = "$TOTAL_BS_N" # RECORDS = "$TOTAL_RECORDS
+echo "# HTTP = "$TOTAL_HTTP" # HTTP Dependent = "$TOTAL_HTTPD" # HTTP No Host = " $TOTAL_HTTPNO" # NON HTTP No Host = " $TOTAL_NONHTTP" TOTAL = "$TOTAL 

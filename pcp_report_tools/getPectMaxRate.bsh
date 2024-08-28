@@ -1,0 +1,81 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getPectMaxRate.bsh
+# Date    : 09/04/2013
+# Revision: R1A02
+# Purpose : This will look in the pect.log of the PCP
+#           and make some estimation of the MAX Line Rate.
+# usage   : ./getPectMaxRate.bsh
+# Depends : log directory is /var/log/ericsson/pcp/
+# ********************************************************************
+
+function getMaxRate {
+  #echo -n "Searching for max rate on "$@" : "
+  cat pect.log |grep FREE|grep "$@" |awk 'BEGIN{max=0} {max=max+$22} END {print "MAX RATE = "max}'
+}
+
+cd /var/log/ericsson/pcp/
+#cat pect.log|grep "FREE"|awk 'BEGIN {cnt=0; sum=0;m1DT=0;m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1;m1DT=$1" "$2; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;}} END {print sum"; "cnt"; Average rate = "(sum/cnt)*8"; max count = "maxcnt"; TOP 8 MAX = "m1" "m2" "m3" "m4" "m5" "m6" "m7" "m8"; max rate = "(m1 + m2 + m3 + m4 + m5 + m6 +m7 +m8) }'
+
+
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {printf "%s", mDT[1]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[2]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[3]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[4]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[5]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[6]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[7]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+
+maxRateDT=$(cat pect.log|grep "FREE"|awk -v index=$i 'BEGIN {cnt=0; sum=0;mDT[1]=0;mDT[2]=0;mDT[3]=0;mDT[4]=0;mDT[5]=0;mDT[6]=0;mDT[7]=0;mDT[8]=0; m1=0;m2=0;m3=0;m4=0;m5=0;m6=0;m7=0;m8=0; maxcnt=0} {cnt=cnt+1;sum=sum+$22;if ($22>m1) { maxcnt=maxcnt+1; m8=m7;m7=m6;m6=m5;m5=m4;m4=m3;m3=m2;m2=m1;m1=$22;mDT[8]=mDT[7];mDT[7]=mDT[6];mDT[6]=mDT[5];mDT[5]=mDT[4];mDT[4]=mDT[3];mDT[3]=mDT[2];mDT[2]=mDT[1];mDT[1]=$1" "$2; } } END {print  mDT[8]; }' | awk -F'[,]' '{print $1}'); echo -n $maxRateDT": "
+size=$(echo ${#maxRateDT})
+if [ "$size" -gt 1 ]; then
+  getMaxRate "$maxRateDT"
+fi
+echo
+
+

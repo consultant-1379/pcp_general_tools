@@ -1,0 +1,38 @@
+
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getUptime.bshh
+# Date    : 14/04/2014
+# Revision: R1A01
+# Purpose : Looks in license.log and calculates PCP uptime
+# usage   : /var/tmp/getUptime.bsh
+# Depends : log directory is /var/log/ericsson/pcp/
+# ********************************************************************
+
+echo "UPTIME"
+cat /var/log/ericsson/pcp/license.log |grep "broadcast"
+printf "\n\nDATE AND TIME NOW: "
+date
+printf "\n\n"
+
+PCP_startTime=$(cat /var/log/ericsson/pcp/license.log |grep "broadcast" |grep Started |awk  -F'[- :,]' '{printf mktime($1" "$2" "$3" "$4" "$5" "$6" ")}')
+PCP_stopTime=$(date +%s)
+echo  "Uptime = $((PCP_stopTime-PCP_startTime)) Seconds"
+UpSec=$((PCP_stopTime-PCP_startTime))
+UpHour=$((UpSec/3600))
+UpMin=$(((UpSec/60) - (UpHour*60)))
+echo "Uptime = $UpHour Hours $UpMin min"

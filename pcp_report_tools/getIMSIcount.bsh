@@ -1,0 +1,89 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : getIMSIcount.bsh
+# Date    : 03/01/2013
+# Revision: R1A02
+# Purpose : This will look in the STAPLE output directory of the PCP
+#           and count the number of IMSI per ROP.
+#           As it is output count this is after the -minFlowSize and
+#           Merge % is applied
+# usage   : ./getIMSIcount.bsh
+# Depends : output directory is /var/opt/ericsson/pcp/output/staple/3g/tcpta-partial
+# ********************************************************************
+# Version R1A01
+#
+# Version R1A02  .. Added Max Rates
+#
+startHour=$(($(date -u|awk '{print $4}'|awk -F'[:]' '{print $1}') -2))
+endHour=$(date -u|awk '{print $4}'|awk -F'[:]' '{print $1}')
+myDate=$(date +"%Y%m%d")
+
+maxNumIMSI=0
+maxNumUniqueIMSI=0
+
+for hour in $(seq $startHour $endHour); do
+        if [[ $hour -lt 10 ]]
+        then
+                hour="0"$hour
+        fi
+        for min in $(seq 0 59); do
+                endMin=$((min+1))
+                endhour=$hour
+                if [[ $endMin -gt 59 ]]
+                then
+                        endMin="0"
+                        endhour=$((hour+1))
+                fi
+                if [[ $min -lt 10 ]]
+                then
+                        min="0"$min
+                fi
+
+                if [[ $endMin -lt 10 ]]
+                then
+                        endMin="0"$endMin
+                fi
+
+                file="/var/opt/ericsson/pcp/output_leo/staple/3g/tcpta-partial/*/*"$hour$min"-"$endhour$endMin"*.log-1.gz"
+                if [  $(find $file 2> /dev/nul |grep -c "A201") -gt 0 ]; then
+                    numUniqueIMSI=$(zcat $file |awk '{print "Q"$33}'|sort -bu|grep -c "Q")
+                    numIMSI=$(zcat $file |awk '{print "Q"$33}'|sort -b|grep -c "Q")
+                    if [[ $numIMSI -gt 0 ]]
+                    then
+                            echo $hour$min"-"$endhour$endMin": Num Unique IMSI's "$numUniqueIMSI", Number IMSI's = "$numIMSI
+                    fi
+                    if [[ $numIMSI -gt $maxNumIMSI ]]
+                    then
+                            maxNumIMSI=$numIMSI
+                    fi
+                    if [[ $numUniqueIMSI -gt $maxNumUniqueIMSI ]]
+                    then
+                            maxNumUniqueIMSI=$numUniqueIMSI
+                    fi
+
+                fi
+
+        done
+done
+
+
+#numUniqueIMSI=$(zcat /var/opt/ericsson/pcp/output_leo/staple/3g/tcpta-partial/*/*$1*.log-1.gz|awk '{print "Q"$33}'|sort -bu|grep -c "Q")
+#numIMSI=$(zcat /var/opt/ericsson/pcp/output_leo/staple/3g/tcpta-partial/*/*$1*.log-1.gz|awk '{print "Q"$33}'|sort -b|grep -c "Q")
+#echo $1": Num Unique IMSI's "$numUniqueIMSI", Number IMSI's = "$numIMSIi
+
+echo "MAX Num Unique IMSI's $maxNumUniqueIMSI, MAX Number IMSI's = $maxNumIMSI"
+

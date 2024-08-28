@@ -1,0 +1,62 @@
+#!/bin/bash
+# ********************************************************************
+# Ericsson Radio Systems AB                                     SCRIPT
+# ********************************************************************
+#
+#
+# (c) Ericsson Radio Systems AB 2011 - All rights reserved.
+#
+# The copyright to the computer program(s) herein is the property
+# of Ericsson Radio Systems AB, Sweden. The programs may be used
+# and/or copied only with the written permission from Ericsson Radio
+# Systems AB or in accordance with the terms and conditions stipulated
+# in the agreement/contract under which the program(s) have been
+# supplied.
+#
+# ********************************************************************
+# Name    : start_Gn_Simulator_all_Protocols.sh
+# Date    : 27/05/2014
+# Revision: R1A01
+# Purpose : start Gn Simulator with all protocols 
+#            
+# usage   : ./start_Gn_Simulator_all_Protocols.sh
+# Depends : 
+# ********************************************************************
+# Version R1A01 : Initial release
+if [ $# -ne 1 ] ; then
+  echo "."
+  echo 1>&2 "$0: not enough arguments"
+  echo 1>&2 "usage: ./start_Gn_Simulator_all_Protocols.sh <0/1>"
+  echo 1>&2 "         where 0 = atrcx2935 and 1 = atsfsx141"
+  echo "."
+  exit 2
+fi
+if [ $1 -gt 1 ]
+then
+  echo "."
+  echo 1>&2 "$0: argument value invalid"
+  echo 1>&2 "usage: ./start_Gn_Simulator_all_Protocols.sh <0/1>"
+  echo 1>&2 "         where 0 = atrcx2935 and 1 = atsfsx141"
+  echo "."
+  exit 2
+fi
+if [ $1 -eq 1 ]
+then
+   ds="eth6"
+   us="eth5"
+   echo "."
+   echo 1>&2 "Starting Simulator on atsfsx141"
+   echo "."
+
+else
+   ds="eth7"
+   us="eth4"
+   echo "."
+   echo 1>&2 "Starting Simulator on atrxc2935"
+   echo "."
+fi
+ps -ef |grep simulator|grep -v grep|grep $ds |awk '{ print $2 }' |xargs kill -9
+/root/gn-sim/simulator_newGtpc_26May14 -i $ds -u $us -t 10000000 -m 1000000 gtp-hack/cells.cfg gtp-hack/gn.cfg gtp-hack/trafficAllProtocols.cfg gtp-hack/ue_config_1k_1&
+echo "."
+echo "Simulator Started"
+echo "."
